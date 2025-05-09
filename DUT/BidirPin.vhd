@@ -1,3 +1,5 @@
+-- Roy comment: think it needs to be replaced with bus_pour_tristate
+
 library ieee;
 use ieee.std_logic_1164.all;
 -----------------------------------------------------------------
