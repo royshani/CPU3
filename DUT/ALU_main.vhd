@@ -9,7 +9,7 @@ entity ALU_main is
         i_A     : in  std_logic_vector(Dwidth-1 downto 0);
         i_B     : in  std_logic_vector(Dwidth-1 downto 0);
         i_ALUFN : in  std_logic_vector(2 downto 0);
-        o_C     : out std_logic_vector(Dwidth-1 downto 0);
+        BUS_A_Data : out std_logic_vector(Dwidth-1 downto 0); -- changed to support 2 bus
         o_cflag : out std_logic;
         o_nflag : out std_logic;
         o_zflag : out std_logic
@@ -73,11 +73,11 @@ begin
 					  (others => '0') 	  when "101", -- unused opcode for now (5)
 					  (others => '0') 	  when "110", -- unused opcode for now (6)
 					  (others => '0') 	  when "111", -- CHECK IF Z OR 0
-					  (others => 'Z') 	  when others; -- CHECK IF Z OR 0
+					  (others => '0') 	  when others; -- changed from 'z' to '0' by HANAN instruction
 	
 	o_nflag <= ALU_result(Dwidth-1);
 	o_zflag <= '1' when ALU_result = zero_vector else '0';
 	o_cflag <= Ripple_reg(Dwidth-1) when (i_ALUFN="000" or i_ALUFN="001") else '0';
-	o_C <= ALU_result;
+	BUS_A_Data <= ALU_result;
 
 end ALUarch;

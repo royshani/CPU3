@@ -6,7 +6,7 @@ use ieee.std_logic_unsigned.all;
 entity RF is
 generic( Dwidth: integer:=16;
 		 Awidth: integer:=4);
-port(	clk,rst,WregEn: in std_logic;	
+port(	clk,rst,WregEn: in std_logic;	--WregEn is RFin 
 		WregData:	in std_logic_vector(Dwidth-1 downto 0);
 		WregAddr,RregAddr:	
 					in std_logic_vector(Awidth-1 downto 0);
