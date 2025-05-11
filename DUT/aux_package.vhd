@@ -227,15 +227,15 @@ package aux_package is
 -- ALU_main component declaration
 --------------------------------------------------------
 	component ALU_main is
-		generic(Dwidth : integer := 16);
-		port(
-			i_A        : in  std_logic_vector(Dwidth-1 downto 0);
-			i_B        : in  std_logic_vector(Dwidth-1 downto 0);
-			i_ALUFN    : in  std_logic_vector(2 downto 0);
-			BUS_A_Data : out std_logic_vector(Dwidth-1 downto 0);
-			o_cflag    : out std_logic;
-			o_nflag    : out std_logic;
-			o_zflag    : out std_logic
+		generic (Dwidth : integer := 16);
+		port (
+			reg_a_q_i   : in  std_logic_vector(Dwidth-1 downto 0);
+			reg_b_r_i   : in  std_logic_vector(Dwidth-1 downto 0);
+			alu_op_i    : in  std_logic_vector(2 downto 0);
+			result_o    : out std_logic_vector(Dwidth-1 downto 0);
+			cflag_o     : out std_logic;
+			nflag_o     : out std_logic;
+			zflag_o     : out std_logic
 		);
 	end component;
 
