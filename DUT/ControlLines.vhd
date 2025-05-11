@@ -210,9 +210,9 @@ begin
             flags_q <= "000";
         elsif rising_edge(clk_i) then
             case state_v is
-                when 8 | 9 =>
+                when 8 | 9 => -- ADD or SUB
                     flags_q <= ALU_c_i & ALU_z_i & ALU_n_i;  -- C,Z,N
-                when 10 | 11 | 12 =>
+                when 10 | 11 | 12 => -- AND , OR or XOR
                     flags_q(1 downto 0) <= ALU_z_i & ALU_n_i;
                 when others =>
                     null;
