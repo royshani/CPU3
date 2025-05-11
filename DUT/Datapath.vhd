@@ -118,9 +118,12 @@ begin
 
     -- Register C
     mapReg_C: GenericRegister generic map(Dwidth) port map(
-        clk => clk_i, en => Cin_i, rst => RF_rst_i,
-        d => alu_result_r, q => bus_a_r
-    );
+    clk_i   => clk_i,
+    ena_i   => Cin_i,
+    rst_i   => RF_rst_i,
+    d_i     => alu_result_r,
+    q_o     => bus_a_r
+);
 
     -- Data Memory
     mapDataMem: dataMem generic map(Dwidth, Awidth, dept) port map(
@@ -131,15 +134,21 @@ begin
 
     -- Register A
     mapReg_A: GenericRegister generic map(Dwidth) port map(
-        clk => clk_i, en => Ain_i, rst => RF_rst_i,
-        d => bus_a_r, q => reg_a_q
-    );
+    clk_i   => clk_i,
+    ena_i   => Ain_i,
+    rst_i   => RF_rst_i,
+    d_i     => bus_a_r,
+    q_o     => reg_a_q
+);
 
     -- DFF for memory address
     mapMemIn_D_FF: GenericRegister generic map(Dwidth) port map(
-        clk => clk_i, en => Mem_in_i, rst => RF_rst_i,
-        d => bus_b_r, q => mem_addr_dff_q
-    );
+    clk_i   => clk_i,
+    ena_i   => Mem_in_i,
+    rst_i   => RF_rst_i,
+    d_i     => bus_b_r,
+    q_o     => mem_addr_dff_q
+);
 
     -- Tri-state drivers for shared bus
     tristate_imm1: BidirPin generic map(Dwidth) port map(imm1_ext_r, bus_b_r, Imm1_in_i);
