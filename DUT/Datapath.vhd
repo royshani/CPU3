@@ -107,14 +107,16 @@ begin
         RregData => rf_data_r
     );
 
-    -- ALU
-    mapALU: ALU_main generic map(Dwidth) port map(
-        reg_a_out => reg_a_q,
-        reg_b_in => bus_b_r,
-        ALU_op => ALU_op_i,
-        result => alu_result_r,
-        C => alu_c_o, N => alu_n_o, Z => alu_z_o
-    );
+	-- ALU
+	mapALU: ALU_main generic map(Dwidth) port map(
+		reg_a_q_i   => reg_a_q,
+		reg_b_r_i   => bus_b_r,
+		alu_op_i    => ALU_op_i,
+		result_o    => alu_result_r,
+		cflag_o     => alu_c_o,
+		nflag_o     => alu_n_o,
+		zflag_o     => alu_z_o
+	);
 
     -- Register C
     mapReg_C: GenericRegister generic map(Dwidth) port map(
