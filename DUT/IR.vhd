@@ -81,4 +81,4 @@ begin
         signext1_o(Dwidth-1 downto 8) <= (others => '1') when '1',
                                          (others => '0') when others;
 
-end IRArch;
+end IRArch
