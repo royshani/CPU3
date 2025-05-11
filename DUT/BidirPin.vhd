@@ -2,6 +2,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use work.aux_package.all;
 -----------------------------------------------------------------
 entity BidirPin is
 	generic( width: integer:=16 );

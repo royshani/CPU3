@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
+
+use work.aux_package.all;
 --------------------------------------------------------------
 entity GenericRegister is
     generic(Dwidth : integer := 16); -- width of register

@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-
+use work.aux_package.all;
 --------------------------------------------------------------
 -- StateLogic: FSM controller that generates current control state
 -- based on opcode, ALU flag, and enable/reset
