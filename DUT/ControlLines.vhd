@@ -1,291 +1,239 @@
- library ieee;
+library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
---------------------------------------------------------------
-entity ControlLines is
-generic( StateLength: integer:=5); -- 2^5 bits to describe states
-port(	clk, rst: in std_logic;
-		i_state: in std_logic_vector(StateLength-1 downto 0);
-		i_opcode: in std_logic_vector(3 downto 0);
-		alu_c, alu_z, alu_n: in std_logic; -- flags from ALU unit
-		-- control lines --
-		RF_out, Data_mem_out, Cout, Imm2_in, Imm1_in, IRin: out std_logic;
-		RF_addr, PCsel: out std_logic_vector(1 downto 0);
-		RF_WregEn, RF_rst, Ain, Cin, Mem_in, Data_MemEn, Pcin: out std_logic; -- RF_rst to be used as global reset?
-		ALU_op: out std_logic_vector(2 downto 0);
-		-- status lines --
-		o_cflag, o_zflag, o_nflag: out std_logic;
-		status_bits : out std_logic_vector(9 downto 0) -- all status bits concatenated 
-	);
-end ControlLines;
---------------------------------------------------------------
-architecture ctrlArch of ControlLines is
-	signal bus_ctrl_vec : std_logic_vector(4 downto 0);
-	signal almostout_flags : std_logic_vector(2 downto 0); -- (C,Z,N)
-	signal concat_op_f : std_logic_vector(4 downto 0);
-	
-begin
-	RF_out 		<= bus_ctrl_vec(4);
-	Data_mem_out<= bus_ctrl_vec(3);
-	Cout 		<= bus_ctrl_vec(2);
-	Imm2_in	 	<= bus_ctrl_vec(1);
-	Imm1_in 	<= bus_ctrl_vec(0);
-	-- bus_ctrl_vec=(RF_out, Data_mem_out, Cout, Imm2_in, Imm1_in)
-	concat_op_f(4 downto 1) <= i_opcode;
-	concat_op_f(0) <= almostout_flags(2);
-	-- concat_op_f=(opcode, cflag)
-	
-	----- outputting content of flags register out -----
-	o_cflag <= almostout_flags(2);
-	o_zflag <= almostout_flags(1);
-	o_nflag <= almostout_flags(0);
-	----------------------------------------------------
-	
-	
-	
-	------- All control lines' names & size(default is 1): -------
-	-- bus_ctrl_vec(5), IRin, RF_addr(2), RF_WregEn, RF_rst, Ain, Cin, ALU_op(3), Mem_in, ..
-	-- .. Data_MemEn, Pcin, PCsel(2).
-	--------------------------------------------------------------
-	CtrlLogic: PROCESS (i_state,concat_op_f) -- sensitivity list? ****
-	-- this process is a pure-logic process (writting with 'case' is easier than 'with-select')
-	variable state_var: integer range 0 to 31;
-	BEGIN
-		state_var := conv_integer(i_state);
-		case(state_var) is
-			when 0 => -- state 0
-				bus_ctrl_vec <= "00000";
-				IRin <= '0';
-				RF_rst <= '1';
-				Data_MemEn <= '0';
-				Pcin <= '1';
-				PCsel <= "00";
-				ALU_op <= "111";
-			when 1 => -- state 1
-				bus_ctrl_vec <= "00000";
-				IRin <= '1';
-				RF_addr <= "00";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Data_MemEn <= '0';
-				Pcin <= '1';
-				PCsel <= "10";
-				ALU_op <= "111";
-			when 2 => -- state 2
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "10";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Ain <= '1';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 3 => -- state 3
-				RF_WregEn <= '0';
-				Data_MemEn <= '0';
-				Pcin <= '1';
-				PCsel <= "01";
-				ALU_op <= "111";
-			when 4 => -- state 4
-				RF_WregEn <= '0';
-				Data_MemEn <= '0';
-				--Pcin <= '1';
-				ALU_op <= "111";
-				case (concat_op_f) is -- (opcode(4), cflag - register content)
-					when "10001" =>
-						PCsel <= "01"; -- jump
-						Pcin <= '1';
-					when "10000" =>
-						PCsel <= "10"; -- don't jump
-						Pcin <= '0';
-					when "10010" =>
-						PCsel <= "01"; -- jump
-						Pcin <= '1';
-					when others => -- (meant for "10010") 
-						PCsel <= "10"; -- don't jump
-						Pcin <= '0';
-				end case;
-			when 5 => -- state 5
-				bus_ctrl_vec <= "00001";
-				RF_addr <= "01";
-				RF_WregEn <= '1';
-				RF_rst <= '0';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 6 => -- state 6
-				bus_ctrl_vec <= "00010";
-				IRin <= '0';
-				RF_WregEn <= '0';
-				Ain <= '1';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 7 => -- state 7 (done)
-				IRin <= '0';
-				Pcin <= '0';
-				PCsel <= "00"; -- all not needed?*****
-				ALU_op <= "111";
-			when 8 => -- state 8
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "11";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Ain <= '0';
-				Cin <= '1';
-				ALU_op <= "000";
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 9 => -- state 9
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "11";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Ain <= '0';
-				Cin <= '1';
-				ALU_op <= "001";
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 10 => -- state 10
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "11";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Ain <= '0';
-				Cin <= '1';
-				ALU_op <= "010";
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 11 => -- state 11
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "11";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Ain <= '0';
-				Cin <= '1';
-				ALU_op <= "011";
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 12 => -- state 12
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "11";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Ain <= '0';
-				Cin <= '1';
-				ALU_op <= "100";
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 13 => -- state 13
-				bus_ctrl_vec <= "00100";
-				IRin <= '0';
-				RF_addr <= "01";
-				RF_WregEn <= '1';
-				RF_rst <= '0';
-				Cin <= '0';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 14 => -- state 14
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "10";
-				RF_WregEn <= '0';
-				RF_WregEn <= '0';
-				Ain <= '0';
-				Cin <= '1';
-				ALU_op <= "000";
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 15 => -- state 15
-				bus_ctrl_vec <= "00100";
-				IRin <= '0';
-				RF_WregEn <= '0';
-				Cin <= '0';
-				Mem_in <= '1';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-			when 16 => -- state 16
-				bus_ctrl_vec <= "10000";
-				IRin <= '0';
-				RF_addr <= "01";
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Mem_in <= '0';
-				Data_MemEn <= '1';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 17 => -- state 17
-				bus_ctrl_vec <= "00100";
-				IRin <= '0';
-				RF_WregEn <= '0';
-				RF_rst <= '0';
-				Cin <= '0';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 18 => -- state 18
-				bus_ctrl_vec <= "01000";
-				IRin <= '0';
-				RF_addr <= "01";
-				RF_WregEn <= '1';
-				RF_rst <= '0';
-				Data_MemEn <= '0';
-				Pcin <= '0';
-				ALU_op <= "111";
-			when 19 => -- state 19 (decode)
-				bus_ctrl_vec <= "00000";
-				RF_WregEn <= '0';
-				IRin <= '0';
-				Pcin <= '0';
-				PCsel <= "00"; -- resetting all input lines that were on during state 1 (fetch)
-				ALU_op <= "111";
-			when others => 
-			-- there are no other states (so far), so 'when others' is meaningless
-				null;
-		end case;
-	
-	END PROCESS;
-	
-	flags_register: PROCESS (clk, rst, alu_c, alu_z, alu_n) -- all relevant inputs
-	variable state_var: integer range 0 to 31;
-	BEGIN
-		state_var := conv_integer(i_state);
-		if rst = '1' then
-			almostout_flags <= "000"; -- all flags to 0
-		else
-			if (clk'EVENT and clk='1') then
-				case (state_var) is
-					when 8|9 =>
-						almostout_flags <= alu_c & alu_z & alu_n; -- save current values of all ALU flags
-					when 10|11|12 =>
-						almostout_flags(1 downto 0) <= alu_z & alu_n; -- save current values of Z,N ALU flags
-					when others => -- others states should not impact stored flags' values
-						null;
-				end case;
-			end if;
-		end if;
-	
-	END PROCESS;
 
-	with i_opcode select -- status bits mega-mux
-		status_bits <= (9 => '1', others => '0') when "1100", -- mov
-					   (8 => '1', others => '0') when "1111", -- done
-					   (7 => '1', others => '0') when "0010", -- and
-					   (6 => '1', others => '0') when "0011", -- or
-					   (5 => '1', others => '0') when "0100", -- xor
-					   (4 => '1', others => '0') when "1001", -- jnc
-					   (3 => '1', others => '0') when "1000", -- jc
-					   (2 => '1', others => '0') when "0111", -- jmp
-					   (1 => '1', others => '0') when "0001", -- sub
-					   (0 => '1', others => '0') when "0000", -- add
-					   (others => '0') when others; -- this covers ld,st and everything new.
+--------------------------------------------------------------
+-- ControlLines: Micro-operation generator
+-- Maps FSM state and opcode to datapath control signals
+--------------------------------------------------------------
+
+entity ControlLines is
+    generic(StateLength : integer := 5);
+    port(
+        -- ControlUnit inputs
+        clk_i        : in std_logic;
+        rst_i        : in std_logic;
+        state_i      : in std_logic_vector(StateLength-1 downto 0);
+        opcode_i     : in std_logic_vector(3 downto 0);
+        ALU_c_i      : in std_logic;
+        ALU_z_i      : in std_logic;
+        ALU_n_i      : in std_logic;
+
+        -- Datapath control signal outputs
+        RF_out_o        : out std_logic;
+        Data_mem_out_o  : out std_logic;
+        Cout_o          : out std_logic;
+        Imm2_in_o       : out std_logic;
+        Imm1_in_o       : out std_logic;
+        IRin_o          : out std_logic;
+
+        RF_addr_o       : out std_logic_vector(1 downto 0);
+        PCsel_o         : out std_logic_vector(1 downto 0);
+        RF_WregEn_o     : out std_logic;
+        RF_rst_o        : out std_logic;
+        Ain_o           : out std_logic;
+        Cin_o           : out std_logic;
+        Mem_in_o        : out std_logic;
+        Data_MemEn_o    : out std_logic;
+        Pcin_o          : out std_logic;
+        ALU_op_o        : out std_logic_vector(2 downto 0);
+
+        -- Output flags and status encoding
+        cflag_o         : out std_logic;
+        zflag_o         : out std_logic;
+        nflag_o         : out std_logic;
+        status_bits_o   : out std_logic_vector(9 downto 0)
+    );
+end ControlLines;
+
+--------------------------------------------------------------
+-- Architecture: Decodes state and opcode into control lines
+--------------------------------------------------------------
+
+architecture ctrlArch of ControlLines is
+
+    -- Control mux: 5 control signals grouped (bus control)
+    signal bus_ctrl_r    : std_logic_vector(4 downto 0); -- (RF_out, Data_mem_out, Cout, Imm2_in, Imm1_in)
+    signal flags_q       : std_logic_vector(2 downto 0); -- Stored flags (C, Z, N)
+    signal concat_op_r   : std_logic_vector(4 downto 0); -- (opcode & cflag) for jump decision logic
+
+begin
+
+    -- Assign bus control signals
+    RF_out_o        <= bus_ctrl_r(4);
+    Data_mem_out_o  <= bus_ctrl_r(3);
+    Cout_o          <= bus_ctrl_r(2);
+    Imm2_in_o       <= bus_ctrl_r(1);
+    Imm1_in_o       <= bus_ctrl_r(0);
+
+    -- Combine opcode and cflag for jump condition matching
+    concat_op_r(4 downto 1) <= opcode_i;
+    concat_op_r(0)          <= flags_q(2);  -- Carry flag (C)
+
+    -- Drive output flag wires
+    cflag_o <= flags_q(2);
+    zflag_o <= flags_q(1);
+    nflag_o <= flags_q(0);
+
+    ----------------------------------------------------------
+    -- Control logic: generates all datapath control lines
+    -- based on FSM state and opcode
+    ----------------------------------------------------------
+
+    CtrlLogic: process(state_i, concat_op_r)
+        variable state_v : integer range 0 to 31;
+    begin
+        state_v := conv_integer(state_i);
+
+        -- Default values (optional: improve robustness)
+        bus_ctrl_r     <= (others => '0');
+        IRin_o         <= '0';
+        RF_rst_o       <= '0';
+        RF_WregEn_o    <= '0';
+        Ain_o          <= '0';
+        Cin_o          <= '0';
+        Mem_in_o       <= '0';
+        Data_MemEn_o   <= '0';
+        Pcin_o         <= '0';
+        PCsel_o        <= "00";
+        ALU_op_o       <= "111";
+
+        case state_v is
+            when 0 =>  -- IDLE
+                RF_rst_o    <= '1';
+                Pcin_o      <= '1';
+
+            when 1 =>  -- FETCH
+                IRin_o      <= '1';
+                RF_addr_o   <= "00";
+                Pcin_o      <= '1';
+
+            when 2 =>  -- Register Fetch (RT)
+                bus_ctrl_r  <= "10000"; -- RF_out enabled
+                RF_addr_o   <= "10";
+                Ain_o       <= '1';
+
+            when 3 =>  -- Jump unconditional
+                Pcin_o      <= '1';
+                PCsel_o     <= "01";
+
+            when 4 =>  -- Jump conditional (JC, JNC)
+                case concat_op_r is
+                    when "10001" =>  -- JC: Carry=1
+                        PCsel_o <= "01"; Pcin_o <= '1';
+                    when "10000" =>  -- JNC: Carry=0
+                        PCsel_o <= "10"; Pcin_o <= '0';
+                    when "10010" =>  -- JMP (fallback)
+                        PCsel_o <= "01"; Pcin_o <= '1';
+                    when others =>
+                        PCsel_o <= "10"; Pcin_o <= '0';
+                end case;
+
+            when 5 =>  -- MOVE
+                bus_ctrl_r    <= "00001"; -- Imm1_in
+                RF_addr_o     <= "01";
+                RF_WregEn_o   <= '1';
+
+            when 6 =>  -- ADDI setup
+                bus_ctrl_r    <= "00010"; -- Imm2_in
+                Ain_o         <= '1';
+
+            when 7 =>  -- DONE (NOP)
+                -- all control lines off
+                PCsel_o <= "00";
+
+            when 8 to 12 =>  -- ALU operations: ADD/SUB/AND/OR/XOR
+                bus_ctrl_r    <= "10000";
+                RF_addr_o     <= "11";
+                Cin_o         <= '1';
+
+                case state_v is
+                    when 8  => ALU_op_o <= "000";  -- ADD
+                    when 9  => ALU_op_o <= "001";  -- SUB
+                    when 10 => ALU_op_o <= "010";  -- AND
+                    when 11 => ALU_op_o <= "011";  -- OR
+                    when 12 => ALU_op_o <= "100";  -- XOR
+                    when others => null;
+                end case;
+
+            when 13 =>  -- RT writeback
+                bus_ctrl_r    <= "00100";  -- Cout
+                RF_addr_o     <= "01";
+                RF_WregEn_o   <= '1';
+
+            when 14 =>  -- ST phase 1
+                bus_ctrl_r    <= "10000";  -- RF_out
+                RF_addr_o     <= "10";
+                Cin_o         <= '1';
+                ALU_op_o      <= "000";
+
+            when 15 =>  -- ST phase 2
+                bus_ctrl_r    <= "00100";  -- Cout
+                Mem_in_o      <= '1';
+
+            when 16 =>  -- ST → memory write
+                bus_ctrl_r    <= "10000";
+                RF_addr_o     <= "01";
+                Data_MemEn_o  <= '1';
+
+            when 17 =>  -- LD phase 1
+                bus_ctrl_r    <= "00100";
+                Cin_o         <= '0';
+
+            when 18 =>  -- LD → register write
+                bus_ctrl_r    <= "01000"; -- Data_mem_out
+                RF_addr_o     <= "01";
+                RF_WregEn_o   <= '1';
+
+            when 19 =>  -- DEC (decode)
+                -- Reset fetch lines (IRin, Pcin)
+                IRin_o        <= '0';
+                Pcin_o        <= '0';
+                PCsel_o       <= "00";
+
+            when others =>
+                -- Default no-op
+                null;
+        end case;
+    end process;
+
+    ----------------------------------------------------------
+    -- Flag Register: Stores ALU flags for later decision use
+    ----------------------------------------------------------
+    FlagLogic: process(clk_i, rst_i)
+        variable state_v : integer range 0 to 31;
+    begin
+        state_v := conv_integer(state_i);
+
+        if rst_i = '1' then
+            flags_q <= "000";
+        elsif rising_edge(clk_i) then
+            case state_v is
+                when 8 | 9 =>
+                    flags_q <= ALU_c_i & ALU_z_i & ALU_n_i;  -- C,Z,N
+                when 10 | 11 | 12 =>
+                    flags_q(1 downto 0) <= ALU_z_i & ALU_n_i;
+                when others =>
+                    null;
+            end case;
+        end if;
+    end process;
+
+    ----------------------------------------------------------
+    -- Status Bit Encoding: For external monitoring/debug
+    ----------------------------------------------------------
+    with opcode_i select
+        status_bits_o <= (9 => '1', others => '0') when "1100", -- mov
+                         (8 => '1', others => '0') when "1111", -- done
+                         (7 => '1', others => '0') when "0010", -- and
+                         (6 => '1', others => '0') when "0011", -- or
+                         (5 => '1', others => '0') when "0100", -- xor
+                         (4 => '1', others => '0') when "1001", -- jnc
+                         (3 => '1', others => '0') when "1000", -- jc
+                         (2 => '1', others => '0') when "0111", -- jmp
+                         (1 => '1', others => '0') when "0001", -- sub
+                         (0 => '1', others => '0') when "0000", -- add
+                         (others => '0') when others;
 
 end ctrlArch;
