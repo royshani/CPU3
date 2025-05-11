@@ -57,11 +57,11 @@ architecture DataArch of Datapath is
     signal imm_pc_r                   : std_logic_vector(7 downto 0);
     signal pc_addr_r                  : std_logic_vector(Awidth-1 downto 0);
     signal instr_r                    : std_logic_vector(Dwidth-1 downto 0);
-    signal bus_b_r                    : std_logic_vector(Dwidth-1 downto 0);
+	signal bus_a_r                    : std_logic_vector(Dwidth-1 downto 0);
+	signal bus_b_r                    : std_logic_vector(Dwidth-1 downto 0);
     signal rf_data_r                  : std_logic_vector(Dwidth-1 downto 0);
     signal reg_a_q                    : std_logic_vector(Dwidth-1 downto 0);
     signal alu_result_r               : std_logic_vector(Dwidth-1 downto 0);
-    signal bus_a_r                    : std_logic_vector(Dwidth-1 downto 0);
     signal data_wr_en_mux_r           : std_logic;
     signal data_wr_data_mux_r         : std_logic_vector(Dwidth-1 downto 0);
     signal data_wr_addr_mux_r         : std_logic_vector(Awidth-1 downto 0);
