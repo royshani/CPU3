@@ -17,35 +17,46 @@ entity Datapath is
     port(
         clk_i               : in std_logic;
 		ena_i				: in std_logic;
-        data_in_i           : in std_logic_vector(Dwidth-1 downto 0);
-        prog_wr_addr_i      : in std_logic_vector(Awidth-1 downto 0);
-        prog_wr_en_i        : in std_logic;
-        tb_active_i         : in std_logic;
-        data_wr_addr_i      : in std_logic_vector(Awidth-1 downto 0);
-        data_wr_data_i      : in std_logic_vector(Dwidth-1 downto 0);
-        data_wr_en_i        : in std_logic;
-        data_rd_data_o      : out std_logic_vector(Dwidth-1 downto 0);
-        data_rd_addr_i      : in std_logic_vector(Awidth-1 downto 0);
+
+        
+
+
 
         alu_c_o             : out std_logic;
         alu_z_o             : out std_logic;
         alu_n_o             : out std_logic;
         opcode_o            : out std_logic_vector(3 downto 0);
 
-        RF_out_i            : in std_logic;
-        data_mem_out_i      : in std_logic;
-        Imm2_in_i           : in std_logic;
-        Imm1_in_i           : in std_logic;
-        IRin_i              : in std_logic;
-        RF_addr_i           : in std_logic_vector(1 downto 0);
-        PCsel_i             : in std_logic_vector(1 downto 0);
-        RF_WregEn_i         : in std_logic;
-        RF_rst_i            : in std_logic;
-        Ain_i               : in std_logic;
-        Mem_in_i            : in std_logic;
-        data_MemEn_i        : in std_logic;
-        PCin_i              : in std_logic;
-        ALU_op_i            : in std_logic_vector(2 downto 0)
+		-- control signals
+        DTCM_wr_i       : in std_logic;
+        DTCM_addr_sel_i : in std_logic;		
+        DTCM_addr_out_i : in std_logic;	
+        DTCM_addr_in_i  : in std_logic;		
+        DTCM_out_i      : in std_logic;
+        ALUFN_i         : in std_logic_vector(2 downto 0); 
+        Ain_i           : in std_logic;
+        RF_WregEn_i     : in std_logic;
+        RF_out_i        : in std_logic;
+        RF_addr_rd_i    : in std_logic_vector(1 downto 0);
+        RF_addr_wr_i    : in std_logic_vector(1 downto 0);		
+        IRin_i          : in std_logic;
+        PCin_i          : in std_logic;
+        PCsel_i         : in std_logic_vector(1 downto 0);
+        Imm1_in_i       : in std_logic;
+        Imm2_in_i       : in std_logic;
+
+
+		-- TB inputs
+		DTCM_tb_out    	    : out std_logic_vector(Dwidth-1 downto 0);
+		tb_active_i         : in std_logic;
+		DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
+		DTCM_tb_wr_i        : in std_logic;
+		DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
+        DTCM_tb_in_i      	: in std_logic_vector(Dwidth-1 downto 0);
+		ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
+        ITCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
+        ITCM_tb_wr_i        : in std_logic;
+
     );
 end Datapath;
 
@@ -63,6 +74,8 @@ architecture DataArch of Datapath is
     signal data_wr_en_mux_r           : std_logic;
     signal data_wr_data_mux_r         : std_logic_vector(Dwidth-1 downto 0);
     signal data_wr_addr_mux_r         : std_logic_vector(Awidth-1 downto 0);
+	signal data_addr_out_mux_r 		  : std_logic_vector(Awidth-1 downto 0);
+	signal data_addr_in_mux_r  		  : std_logic_vector(Awidth-1 downto 0);
     signal data_rd_addr_mux_r         : std_logic_vector(Awidth-1 downto 0);
     signal data_mem_out_r             : std_logic_vector(Dwidth-1 downto 0);
     signal mem_addr_dff_q             : std_logic_vector(Dwidth-1 downto 0);
@@ -86,8 +99,8 @@ begin
 
     -- Program Memory
     mapProgMem: ProgMem generic map(Dwidth, Awidth, dept) port map(
-        clk => clk_i, memEn => prog_wr_en_i, WmemData => data_in_i,
-        WmemAddr => prog_wr_addr_i, RmemAddr => pc_addr_r,
+        clk => clk_i, memEn => ITCM_tb_wr_i, WmemData => ITCM_tb_in_i,
+        WmemAddr => ITCM_tb_addr_in_i, RmemAddr => pc_addr_r,
         RmemData => instr_r
     );
 
@@ -133,28 +146,38 @@ begin
         RmemData => data_mem_out_r
     );
 
-    -- DFF for memory address
-    mapMemIn_D_FF: GenericRegister generic map(Dwidth) port map(
+    -- DFF for memory address read
+    mapMemIn_D_FF_rd: GenericRegister generic map(Dwidth) port map(
         clk_i   => clk_i,
-        ena_i   => Mem_in_i,
-        rst_i   => RF_rst_i,
-        d_i     => bus_b_r,
-        q_o     => mem_addr_dff_q
+        ena_i   => DTCM_addr_out_i,
+        rst_i   => rst_i,
+        d_i     => data_addr_out_mux_r,
+        q_o     => data_rd_addr_mux_r
+    );
+	-- DFF for memory address write
+    mapMemIn_D_FF_wr: GenericRegister generic map(Dwidth) port map(
+        clk_i   => clk_i,
+        ena_i   => DTCM_addr_in_i,
+        rst_i   => rst_i,
+        d_i     => data_addr_in_mux_r,
+        q_o     => data_wr_addr_mux_r
     );
 
     -- Tri-state drivers for shared bus B
     tristate_imm1: BidirPin generic map(Dwidth) port map(imm1_ext_r, bus_b_r, Imm1_in_i);
     tristate_imm2: BidirPin generic map(Dwidth) port map(imm2_ext_r, bus_b_r, Imm2_in_i);
     tristate_RF_data: BidirPin generic map(Dwidth) port map(rf_data_r, bus_b_r, RF_out_i);
-    tristate_data_out: BidirPin generic map(Dwidth) port map(data_mem_out_r, bus_b_r, data_mem_out_i);
+    tristate_data_out: BidirPin generic map(Dwidth) port map(data_mem_out_r, bus_b_r, DTCM_out_i);
 
     -- Output to TB
-    data_rd_data_o <= data_mem_out_r;
+    DTCM_tb_out <= data_mem_out_r;
 
     -- MUX logic for TB vs CPU memory control
-    data_wr_en_mux_r      <= data_MemEn_i when tb_active_i = '0' else data_wr_en_i;
-    data_wr_data_mux_r    <= bus_b_r       when tb_active_i = '0' else data_wr_data_i;
-    data_wr_addr_mux_r    <= mem_addr_dff_q(Awidth-1 downto 0) when tb_active_i = '0' else data_wr_addr_i;
-    data_rd_addr_mux_r    <= bus_b_r(Awidth-1 downto 0) when tb_active_i = '0' else data_rd_addr_i;
-
-end DataArch;
+    data_wr_en_mux_r      <= data_MemEn_i when tb_active_i = '0' else DTCM_tb_wr_i;
+    data_wr_data_mux_r    <= bus_b_r       when tb_active_i = '0' else DTCM_tb_in_i;
+    data_wr_addr_mux_r    <= mem_addr_dff_q(Awidth-1 downto 0) when tb_active_i = '0' else DTCM_tb_addr_in_i;
+    data_rd_addr_mux_r    <= data_rd_addr_mux_r(Awidth-1 downto 0) when tb_active_i = '0' else DTCM_tb_addr_in_i;
+	data_addr_out_mux_r	  <= bus_a_r(Awidth-1 downto 0)	when DTCM_addr_sel_i = '0' else bus_b_r(Awidth-1 downto 0);
+	data_addr_in_mux_r	  <= bus_a_r(Awidth-1 downto 0)	when DTCM_addr_sel_i = '0' else bus_b_r(Awidth-1 downto 0);
+	
+end DataArc_i = '0' else ;

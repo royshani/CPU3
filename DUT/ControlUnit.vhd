@@ -26,25 +26,24 @@ entity ControlUnit is
         opcode_i      : in std_logic_vector(3 downto 0);
 
         -- Datapath control signals
-        RF_out_o      : out std_logic;
-        Data_mem_out_o: out std_logic;
-        Cout_o        : out std_logic;
-        Imm2_in_o     : out std_logic;
-        Imm1_in_o     : out std_logic;
-        IRin_o        : out std_logic;
-
-        RF_addr_o     : out std_logic_vector(1 downto 0);
-        PCsel_o       : out std_logic_vector(1 downto 0);
-
-        RF_WregEn_o   : out std_logic;
-        RF_rst_o      : out std_logic;
-        Ain_o         : out std_logic;
-        Cin_o         : out std_logic;
-        Mem_in_o      : out std_logic;
-        Data_MemEn_o  : out std_logic;
-        Pcin_o        : out std_logic;
-
-        ALU_op_o      : out std_logic_vector(2 downto 0);  -- ALU operation code
+        DTCM_wr_o       : out std_logic;
+		DTCM_addr_sel_o : out std_logic;		
+		DTCM_addr_out_o : out std_logic;	
+        DTCM_addr_in_o  : out std_logic;		
+        DTCM_out_o      : out std_logic;
+        ALUFN_o         : out std_logic_vector(2 downto 0); -- !!! needs to be change to ALUFN_o
+        Ain_o           : out std_logic;
+        RF_WregEn_o     : out std_logic;
+        RF_out_o        : out std_logic;
+		
+		
+		RF_addr_rd_o    : out std_logic_vector(1 downto 0);
+        RF_addr_wr_o    : out std_logic_vector(1 downto 0);		
+		IRin_o          : out std_logic;
+		PCin_o          : out std_logic;
+        PCsel_o         : out std_logic_vector(1 downto 0);
+        Imm1_in_o       : out std_logic;
+		Imm2_in_o       : out std_logic;
 
         -- Debug/Status output: concatenated flags and opcode status
         status_bits_o : out std_logic_vector(12 downto 0)
@@ -90,22 +89,22 @@ begin
             ALU_n_i         => ALU_n_i,
 
             -- Outputs to datapath
-            RF_out_o        => RF_out_o,
-            Data_mem_out_o  => Data_mem_out_o,
-            Cout_o          => Cout_o,
-            Imm2_in_o       => Imm2_in_o,
-            Imm1_in_o       => Imm1_in_o,
-            IRin_o          => IRin_o,
-            RF_addr_o       => RF_addr_o,
-            PCsel_o         => PCsel_o,
-            RF_WregEn_o     => RF_WregEn_o,
-            RF_rst_o        => RF_rst_o,
-            Ain_o           => Ain_o,
-            Cin_o           => Cin_o,
-            Mem_in_o        => Mem_in_o,
-            Data_MemEn_o    => Data_MemEn_o,
-            Pcin_o          => Pcin_o,
-            ALU_op_o        => ALU_op_o,
+            DTCM_wr_o         => DTCM_wr_o,
+            DTCM_addr_sel_o   => DTCM_addr_sel_o,
+            DTCM_addr_out_o   => DTCM_addr_out_o,
+            DTCM_addr_in_o    => DTCM_addr_in_o,
+            DTCM_out_o        => DTCM_out_o,
+            ALUFN_o           => ALUFN_o,
+            Ain_o             => Ain_o,
+            RF_WregEn_o       => RF_WregEn_o,
+            RF_out_o          => RF_out_o,
+            RF_addr_rd_o      => RF_addr_rd_o,
+            RF_addr_wr_o      => RF_addr_wr_o,
+            IRin_o            => IRin_o,
+            PCin_o            => PCin_o,
+            PCsel_o           => PCsel_o,
+            Imm1_in_o         => Imm1_in_o,
+            Imm2_in_o         => Imm2_in_o,
 
             -- Flags to status register
             cflag_o         => status_bits_o(12),

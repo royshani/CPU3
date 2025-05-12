@@ -45,7 +45,7 @@ entity ControlLines is
         cflag_o         : out std_logic;
         zflag_o         : out std_logic;
         nflag_o         : out std_logic;
-        status_bits_o   : out std_logic_vector(9 downto 0)
+        status_bits_o   : out std_logic_vector(14 downto 0)
 		done			: out std_logic;
     );
 end ControlLines;
@@ -82,7 +82,7 @@ begin
     -- Control logic: generates all datapath control lines
     -- based on FSM state and opcode
     ----------------------------------------------------------
-	PCsel_o         <=  "00"; -- default values
+
     
 	CtrlLogic: process(state_i, concat_op_r)
         variable state_v : integer range 0 to 31;
@@ -93,7 +93,6 @@ begin
         -- Default values (optional: improve robustness)
         bus_ctrl_r      <=  (others => '0');
         IRin_o          <=  '0';
-        RF_rst_o        <=  '0'; -- need to delete
         RF_WregEn_o     <=  '0';
         Ain_o           <=  '0';
         DTCM_addr_in_o  <=  '0';
@@ -104,11 +103,12 @@ begin
         ALUFN_o         <=  "111";
 		RF_addr_rd_o    <=  "00";
         RF_addr_wr_o    <=  "00";
+		done		 	<=  '0';
 
         case state_v is
             when 0 =>  -- reset
-                RF_rst_o    <= '1'; --need to delete
                 PCin_o      <= '1';
+				PCsel_o         <=  "00"; -- default values
 
 
             when 1 =>  -- FETCH
@@ -149,6 +149,7 @@ begin
             when 7 =>  -- DONE (NOP)
                 -- all control lines off
                 PCsel_o <= "00";
+				done 	<= '1';
 
             when 8 to 12 =>  -- ALU operations: ADD/SUB/AND/OR/XOR
                 bus_ctrl_r    <= "1000"; -- RF_out enable
@@ -229,21 +230,25 @@ begin
         end if;
     end process;
 
-    ----------------------------------------------------------
-    -- Status Bit Encoding: For external monitoring/debug
-    ----------------------------------------------------------
-    with opcode_i select
-        status_bits_o <= (9 => '1', others => '0') when "1100", -- mov
-                         (8 => '1', others => '0') when "1111", -- done
-                         (7 => '1', others => '0') when "0010", -- and
-                         (6 => '1', others => '0') when "0011", -- or
-                         (5 => '1', others => '0') when "0100", -- xor
-                         (4 => '1', others => '0') when "1001", -- jnc
-                         (3 => '1', others => '0') when "1000", -- jc
-                         (2 => '1', others => '0') when "0111", -- jmp
-                         (1 => '1', others => '0') when "0001", -- sub
-                         (0 => '1', others => '0') when "0000", -- add
-						 
-                         (others => '0') when others;
+	-- Status Bit Encoding: For external monitoring/debug
+	-- Format: [MOV][DONE][AND][OR][XOR][JNC][JC][JMP][C][Z][N][LD][ST]
+	-- Assign opcode-related bits (excluding bits 4:2)
+	with opcode_i select
+		status_bits_o(14 downto 5) <= "10000000" when "1100", -- mov
+									  "01000000" when "1111", -- done
+									  "00100000" when "0010", -- and
+									  "00010000" when "0011", -- or
+									  "00001000" when "0100", -- xor
+									  "00000100" when "1001", -- jnc
+									  "00000010" when "1000", -- jc
+									  "00000001" when "0111", -- jmp
+									  "00000000" when others;
+
+	-- Assign fixed status bits
+	status_bits_o(4) <= flags_q(2);  -- Carry flag
+	status_bits_o(3) <= flags_q(1);  -- Zero flag
+	status_bits_o(2) <= flags_q(0);  -- Negative flag
+	status_bits_o(1) <= '1' when opcode_i = "1101" else '0'; -- Load
+	status_bits_o(0) <= '1' when opcode_i = "1110" else '0'; -- Store
 
 end ctrlArch;
