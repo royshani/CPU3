@@ -5,7 +5,7 @@ use ieee.std_logic_unsigned.all;
 use work.aux_package.all;
 
 --------------------------------------------------------------
--- Datapath: Refactored with consistent signal naming
+-- Datapath: Refactored with consistent signal naming (no Reg C)
 --------------------------------------------------------------
 
 entity Datapath is
@@ -33,7 +33,6 @@ entity Datapath is
 
         RF_out_i            : in std_logic;
         data_mem_out_i      : in std_logic;
-        Cout_i              : in std_logic;
         Imm2_in_i           : in std_logic;
         Imm1_in_i           : in std_logic;
         IRin_i              : in std_logic;
@@ -42,7 +41,6 @@ entity Datapath is
         RF_WregEn_i         : in std_logic;
         RF_rst_i            : in std_logic;
         Ain_i               : in std_logic;
-        Cin_i               : in std_logic;
         Mem_in_i            : in std_logic;
         data_MemEn_i        : in std_logic;
         PCin_i              : in std_logic;
@@ -57,11 +55,10 @@ architecture DataArch of Datapath is
     signal imm_pc_r                   : std_logic_vector(7 downto 0);
     signal pc_addr_r                  : std_logic_vector(Awidth-1 downto 0);
     signal instr_r                    : std_logic_vector(Dwidth-1 downto 0);
-	signal bus_a_r                    : std_logic_vector(Dwidth-1 downto 0);
-	signal bus_b_r                    : std_logic_vector(Dwidth-1 downto 0);
+    signal bus_a_r                    : std_logic_vector(Dwidth-1 downto 0);
+    signal bus_b_r                    : std_logic_vector(Dwidth-1 downto 0);
     signal rf_data_r                  : std_logic_vector(Dwidth-1 downto 0);
     signal reg_a_q                    : std_logic_vector(Dwidth-1 downto 0);
-    signal alu_result_r               : std_logic_vector(Dwidth-1 downto 0);
     signal data_wr_en_mux_r           : std_logic;
     signal data_wr_data_mux_r         : std_logic_vector(Dwidth-1 downto 0);
     signal data_wr_addr_mux_r         : std_logic_vector(Awidth-1 downto 0);
@@ -107,25 +104,25 @@ begin
         RregData => rf_data_r
     );
 
-	-- ALU
-	mapALU: ALU_main generic map(Dwidth) port map(
-		reg_a_q_i   => reg_a_q,
-		reg_b_r_i   => bus_b_r,
-		alu_op_i    => ALU_op_i,
-		result_o    => alu_result_r,
-		cflag_o     => alu_c_o,
-		nflag_o     => alu_n_o,
-		zflag_o     => alu_z_o
-	);
+    -- ALU (writes directly to bus A)
+    mapALU: ALU_main generic map(Dwidth) port map(
+        reg_a_q_i   => reg_a_q,
+        reg_b_r_i   => bus_b_r,
+        alu_op_i    => ALU_op_i,
+        result_o    => bus_a_r,
+        cflag_o     => alu_c_o,
+        nflag_o     => alu_n_o,
+        zflag_o     => alu_z_o
+    );
 
-    -- Register C
-    mapReg_C: GenericRegister generic map(Dwidth) port map(
-    clk_i   => clk_i,
-    ena_i   => Cin_i,
-    rst_i   => RF_rst_i,
-    d_i     => alu_result_r,
-    q_o     => bus_a_r
-);
+    -- Register A
+    mapReg_A: GenericRegister generic map(Dwidth) port map(
+        clk_i   => clk_i,
+        ena_i   => Ain_i,
+        rst_i   => RF_rst_i,
+        d_i     => bus_a_r,
+        q_o     => reg_a_q
+    );
 
     -- Data Memory
     mapDataMem: dataMem generic map(Dwidth, Awidth, dept) port map(
@@ -134,25 +131,16 @@ begin
         RmemData => data_mem_out_r
     );
 
-    -- Register A
-    mapReg_A: GenericRegister generic map(Dwidth) port map(
-    clk_i   => clk_i,
-    ena_i   => Ain_i,
-    rst_i   => RF_rst_i,
-    d_i     => bus_a_r,
-    q_o     => reg_a_q
-);
-
     -- DFF for memory address
     mapMemIn_D_FF: GenericRegister generic map(Dwidth) port map(
-    clk_i   => clk_i,
-    ena_i   => Mem_in_i,
-    rst_i   => RF_rst_i,
-    d_i     => bus_b_r,
-    q_o     => mem_addr_dff_q
-);
+        clk_i   => clk_i,
+        ena_i   => Mem_in_i,
+        rst_i   => RF_rst_i,
+        d_i     => bus_b_r,
+        q_o     => mem_addr_dff_q
+    );
 
-    -- Tri-state drivers for shared bus
+    -- Tri-state drivers for shared bus B
     tristate_imm1: BidirPin generic map(Dwidth) port map(imm1_ext_r, bus_b_r, Imm1_in_i);
     tristate_imm2: BidirPin generic map(Dwidth) port map(imm2_ext_r, bus_b_r, Imm2_in_i);
     tristate_RF_data: BidirPin generic map(Dwidth) port map(rf_data_r, bus_b_r, RF_out_i);
