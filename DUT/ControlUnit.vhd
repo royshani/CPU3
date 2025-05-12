@@ -46,7 +46,7 @@ entity ControlUnit is
 		Imm2_in_o       : out std_logic;
 
         -- Debug/Status output: concatenated flags and opcode status
-        status_bits_o : out std_logic_vector(12 downto 0)
+        status_bits_o : out std_logic_vector(14 downto 0)
     );
 end ControlUnit;
 
@@ -89,22 +89,22 @@ begin
             ALU_n_i         => ALU_n_i,
 
             -- Outputs to datapath
-            DTCM_wr_o         => DTCM_wr_o,
-            DTCM_addr_sel_o   => DTCM_addr_sel_o,
-            DTCM_addr_out_o   => DTCM_addr_out_o,
-            DTCM_addr_in_o    => DTCM_addr_in_o,
-            DTCM_out_o        => DTCM_out_o,
-            ALUFN_o           => ALUFN_o,
-            Ain_o             => Ain_o,
-            RF_WregEn_o       => RF_WregEn_o,
-            RF_out_o          => RF_out_o,
-            RF_addr_rd_o      => RF_addr_rd_o,
-            RF_addr_wr_o      => RF_addr_wr_o,
-            IRin_o            => IRin_o,
-            PCin_o            => PCin_o,
-            PCsel_o           => PCsel_o,
-            Imm1_in_o         => Imm1_in_o,
-            Imm2_in_o         => Imm2_in_o,
+            DTCM_wr_o         => DTCM_wr_i,
+            DTCM_addr_sel_o   => DTCM_addr_sel_i,
+            DTCM_addr_out_o   => DTCM_addr_out_i,
+            DTCM_addr_in_o    => DTCM_addr_in_i,
+            DTCM_out_o        => DTCM_out_i,
+            ALUFN_o           => ALUFN_i,
+            Ain_o             => Ain_i,
+            RF_WregEn_o       => RF_WregEn_i,
+            RF_out_o          => RF_out_i,
+            RF_addr_rd_o      => RF_addr_rd_i,
+            RF_addr_wr_o      => RF_addr_wr_i,
+            IRin_o            => IRin_i,
+            PCin_o            => PCin_i,
+            PCsel_o           => PCsel_i,
+            Imm1_in_o         => Imm1_in_i,
+            Imm2_in_o         => Imm2_in_i,
 
             -- Flags to status register
             cflag_o         => status_bits_o(12),
