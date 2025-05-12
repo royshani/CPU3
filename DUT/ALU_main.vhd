@@ -66,16 +66,24 @@ begin
     end generate;
 
     -- Output logic and flag assignment
-    with alu_op_i select
-        alu_result_r <= addsub_r           when "000",  -- ADD
-                         addsub_r           when "001",  -- SUB
-                         reg_a_q_i and reg_b_r_i when "010",  -- AND
-                         reg_a_q_i or  reg_b_r_i when "011",  -- OR
-                         reg_a_q_i xor reg_b_r_i when "100",  -- XOR
-						 (others => '0') 	  when "101", -- unused opcode for now (5)
-						 (others => '0') 	  when "110", -- unused opcode for now (6)
-						 reg_b_r_i when "111" and i_Ain = "1", -- move rb to REG A
-                         (others => '0')         when others;  -- Default unused opcodes
+	process(alu_op_i, reg_a_q_i, reg_b_r_i, Ain_i)
+	begin
+		case alu_op_i is
+			when "000" => alu_result_r <= addsub_r;
+			when "001" => alu_result_r <= addsub_r;
+			when "010" => alu_result_r <= reg_a_q_i and reg_b_r_i;
+			when "011" => alu_result_r <= reg_a_q_i or  reg_b_r_i;
+			when "100" => alu_result_r <= reg_a_q_i xor reg_b_r_i;
+			when "111" =>
+				if Ain_i = '1' then
+					alu_result_r <= reg_b_r_i;  -- MOVE bus_B into bus_A
+				else
+					alu_result_r <= (others => '0');
+				end if;
+			when others =>
+				alu_result_r <= (others => '0');
+		end case;
+	end process;
 
     nflag_o <= alu_result_r(Dwidth-1);
     zflag_o <= '1' when alu_result_r = zero_w else '0';
