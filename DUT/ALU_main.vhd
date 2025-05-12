@@ -10,6 +10,7 @@ entity ALU_main is
         reg_a_q_i : in  std_logic_vector(Dwidth-1 downto 0);
         reg_b_r_i : in  std_logic_vector(Dwidth-1 downto 0);
         alu_op_i  : in  std_logic_vector(2 downto 0);
+		Ain_i	  : in	std_logic;
         result_o  : out std_logic_vector(Dwidth-1 downto 0);
         cflag_o   : out std_logic;
         nflag_o   : out std_logic;
@@ -71,6 +72,9 @@ begin
                          reg_a_q_i and reg_b_r_i when "010",  -- AND
                          reg_a_q_i or  reg_b_r_i when "011",  -- OR
                          reg_a_q_i xor reg_b_r_i when "100",  -- XOR
+						 (others => '0') 	  when "101", -- unused opcode for now (5)
+						 (others => '0') 	  when "110", -- unused opcode for now (6)
+						 reg_b_r_i when "111" and i_Ain = "1", -- move rb to REG A
                          (others => '0')         when others;  -- Default unused opcodes
 
     nflag_o <= alu_result_r(Dwidth-1);
