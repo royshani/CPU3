@@ -232,6 +232,7 @@ package aux_package is
 			reg_a_q_i   : in  std_logic_vector(Dwidth-1 downto 0);
 			reg_b_r_i   : in  std_logic_vector(Dwidth-1 downto 0);
 			alu_op_i    : in  std_logic_vector(2 downto 0);
+			Ain_i	 	: in  std_logic;
 			result_o    : out std_logic_vector(Dwidth-1 downto 0);
 			cflag_o     : out std_logic;
 			nflag_o     : out std_logic;
