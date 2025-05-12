@@ -43,7 +43,7 @@ begin
     alu_a_r <= reg_a_q_i;
     alu_b_r <= reg_b_r_i;
 
-    manip_b_r <= not reg_b_r_i when alu_op_i = "001" else reg_b_r_i;
+    manip_b_r <= not alu_b_r when alu_op_i = "001" else alu_b_r;
     cin_r     <= '1' when alu_op_i = "001" else '0';
 
     -- Ripple Carry Adder/Subtractor --
@@ -66,7 +66,7 @@ begin
     end generate;
 
     -- Output logic and flag assignment
-	process(alu_op_i, reg_a_q_i, reg_b_r_i, Ain_i)
+	process(alu_op_i, alu_a_r, alu_b_r, Ain_i)
 	begin
 		case alu_op_i is
 			when "000" => alu_result_r <= addsub_r;
