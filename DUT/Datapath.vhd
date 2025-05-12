@@ -16,6 +16,8 @@ entity Datapath is
     );
     port(
         clk_i               : in std_logic;
+		ena_i				: in std_logic;
+		Ain_i	  			: in std_logic;
         data_in_i           : in std_logic_vector(Dwidth-1 downto 0);
         prog_wr_addr_i      : in std_logic_vector(Awidth-1 downto 0);
         prog_wr_en_i        : in std_logic;
@@ -108,7 +110,8 @@ begin
     mapALU: ALU_main generic map(Dwidth) port map(
         reg_a_q_i   => reg_a_q,
         reg_b_r_i   => bus_b_r,
-        alu_op_i    => ALU_op_i,
+        alu_op_i    => alu_op_i,
+		Ain_i		=> Ain_i,
         result_o    => bus_a_r,
         cflag_o     => alu_c_o,
         nflag_o     => alu_n_o,
@@ -118,8 +121,8 @@ begin
     -- Register A
     mapReg_A: GenericRegister generic map(Dwidth) port map(
         clk_i   => clk_i,
-        ena_i   => Ain_i,
-        rst_i   => RF_rst_i,
+        Ain_i   => Ain_i,
+        rst_i   => rst_i,
         d_i     => bus_a_r,
         q_o     => reg_a_q
     );
