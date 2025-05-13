@@ -104,9 +104,9 @@ begin
 
     -- PC Logic
     mapPC: PCLogic generic map(Awidth) port map(
-        clk => clk_i, i_PCin => PCin_i, i_PCsel => PCsel_i,
-        i_IR_imm => imm_pc_r,
-        o_currentPC => pc_addr_r
+        clk_i => clk_i, PCin_i => PCin_i, PCsel_i => PCsel_i,
+        IR_imm_i => imm_pc_r,
+        currentPC_o => pc_addr_r
     );
 
     -- Register File
