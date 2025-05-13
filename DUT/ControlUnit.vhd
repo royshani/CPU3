@@ -72,6 +72,7 @@ architecture ControlArch of ControlUnit is
   signal Imm1_in_i        : std_logic;
   signal Imm2_in_i        : std_logic;
 
+
   signal ALUFN_i          : std_logic_vector(2 downto 0);
   signal Ain_i            : std_logic;
   signal RF_WregEn_i      : std_logic;

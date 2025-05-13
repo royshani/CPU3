@@ -161,8 +161,10 @@ package aux_package is
 			clk_i              : in std_logic;
 			rst_i              : in std_logic;
 			ena_i              : in std_logic;
-			done_o             : out std_logic;
+			done_o             : OUT std_logic;
 
+
+			
 			-- TB inputs
 			DTCM_tb_out        : out std_logic_vector(Dwidth-1 downto 0);
 			tb_active_i        : in  std_logic;
@@ -337,6 +339,7 @@ package aux_package is
 			ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
 			ITCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
 			ITCM_tb_wr_i        : in std_logic
+						
 		);
 	end component;
 

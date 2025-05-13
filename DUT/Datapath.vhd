@@ -18,10 +18,8 @@ entity Datapath is
         clk_i               : in std_logic;
 		ena_i				: in std_logic;
 		rst_i				: in std_logic;
-        
 
-
-
+		
         alu_c_o             : out std_logic;
         alu_z_o             : out std_logic;
         alu_n_o             : out std_logic;
@@ -205,4 +203,6 @@ begin
 	data_addr_out_mux_r	  <= bus_a_r(Awidth-1 downto 0)	when DTCM_addr_sel_i = '0' else bus_b_r(Awidth-1 downto 0);
 	data_addr_in_mux_r	  <= bus_a_r(Awidth-1 downto 0)	when DTCM_addr_sel_i = '0' else bus_b_r(Awidth-1 downto 0);
 	
+
 end DataArc;
+

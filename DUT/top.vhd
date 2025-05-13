@@ -19,10 +19,11 @@ port(
     rst_i              : in std_logic;  -- Reset signal fed from TB
     ena_i              : in std_logic;  -- Enable signal for control unit fed from TB
     done_o             : out std_logic; -- Done flag to TB
+	
 
 		-- TB inputs
 	DTCM_tb_out    	    : out std_logic_vector(Dwidth-1 downto 0);
-	tb_active_i         : in std_logic;
+	tb_active_i         : in std_logic:= '0';
 	DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
 	DTCM_tb_wr_i        : in std_logic;
 	DTCM_tb_addr_out_i  : in std_logic_vector(Awidth-1 downto 0);
@@ -41,23 +42,24 @@ ARCHITECTURE topArch OF top IS
 
     -- Control signals sent to Datapath
 
-  signal DTCM_addr_sel_i  : std_logic;
-  signal DTCM_addr_out_i  : std_logic;
-  signal DTCM_addr_in_i   : std_logic;
-  signal DTCM_out_i       : std_logic;
-  signal DTCM_wr_i 		  : std_logic;
-  signal ALUFN_i          : std_logic_vector(2 downto 0);
-  signal Ain_i            : std_logic;
-  signal RF_WregEn_i      : std_logic;
-  signal RF_out_i         : std_logic;
-  signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
-  signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
-  signal IRin_i           : std_logic;
-  signal PCin_i           : std_logic;
-  signal PCsel_i          : std_logic_vector(1 downto 0);
-  signal Imm1_in_i        : std_logic;
-  signal Imm2_in_i        : std_logic;
-  signal status_bits_r    : std_logic_vector(14 downto 0);
+	 signal DTCM_addr_sel_i  : std_logic;
+	 signal DTCM_addr_out_i  : std_logic;
+	 signal DTCM_addr_in_i   : std_logic;
+	 signal DTCM_out_i       : std_logic;
+	 signal DTCM_wr_i 		  : std_logic;
+	 signal ALUFN_i          : std_logic_vector(2 downto 0);
+	 signal Ain_i            : std_logic;
+	 signal RF_WregEn_i      : std_logic;
+	 signal RF_out_i         : std_logic;
+	 signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
+	 signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
+	 signal IRin_i           : std_logic;
+	 signal PCin_i           : std_logic;
+	 signal PCsel_i          : std_logic_vector(1 downto 0);
+	 signal Imm1_in_i        : std_logic;
+	 signal Imm2_in_i        : std_logic;
+	 signal status_bits_r    : std_logic_vector(14 downto 0);
+	 signal done_r			  : std_logic;
 
 BEGIN
 
@@ -71,7 +73,9 @@ BEGIN
         alu_z_o            => alu_z_o,
         alu_n_o            => alu_n_o,
         opcode_o           => opcode_o,
+		
 
+		
         DTCM_wr_i          => DTCM_wr_i,
         DTCM_addr_sel_i    => DTCM_addr_sel_i,
         DTCM_addr_out_i    => DTCM_addr_out_i,
@@ -111,7 +115,7 @@ BEGIN
         ALU_z_i            => alu_z_o,
         ALU_n_i            => alu_n_o,
         opcode_i           => opcode_o,
-		done			   => done_o,
+		done			   => done_r,
         DTCM_wr_o          => DTCM_wr_i,
         DTCM_addr_sel_o    => DTCM_addr_sel_i,
         DTCM_addr_out_o    => DTCM_addr_out_i,
@@ -134,5 +138,5 @@ BEGIN
         
     );
 
-
+	done_o <= done_r;
 END topArch;
