@@ -15,7 +15,6 @@ entity IR is
         IR_content_i  : in std_logic_vector(Dwidth-1 downto 0);
 
         opcode_o      : out std_logic_vector(3 downto 0);
-
         signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
         signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
         imm_to_PC_o   : out std_logic_vector(7 downto 0)
@@ -30,6 +29,7 @@ architecture IRArch of IR is
 
     -- Extracted fields
     signal ra_r, rb_r, rc_r       : std_logic_vector(3 downto 0);
+	signal addr_rd_o, addr_wr_o   : std_logic_vector(3 downto 0);
     signal immShort_r             : std_logic_vector(3 downto 0);
     signal immLong_r              : std_logic_vector(7 downto 0);
 
@@ -80,5 +80,4 @@ begin
     with immLong_r(7) select
         signext1_o(Dwidth-1 downto 8) <= (others => '1') when '1',
                                          (others => '0') when others;
-
-end IRArch
+end IRArch;

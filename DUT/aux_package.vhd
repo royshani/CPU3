@@ -109,40 +109,45 @@ package aux_package is
 	component ControlLines is
 		generic(StateLength : integer := 5);
 		port(
-			clk_i           : in  std_logic;
-			rst_i           : in  std_logic;
-			state_i         : in  std_logic_vector(StateLength-1 downto 0);
-			opcode_i        : in  std_logic_vector(3 downto 0);
-			ALU_c_i         : in  std_logic;
-			ALU_z_i         : in  std_logic;
-			ALU_n_i         : in  std_logic;
+			-- ControlUnit inputs
+			clk_i        : in std_logic;
+			rst_i        : in std_logic;
+			ena_i        : in std_logic;
+			state_i      : in std_logic_vector(StateLength-1 downto 0);
+			opcode_i     : in std_logic_vector(3 downto 0);
+			ALU_c_i      : in std_logic;
+			ALU_z_i      : in std_logic;
+			ALU_n_i      : in std_logic;
 
-			RF_out_o        : out std_logic;
-			Data_mem_out_o  : out std_logic;
-			Cout_o          : out std_logic;
-			Imm2_in_o       : out std_logic;
-			Imm1_in_o       : out std_logic;
-			IRin_o          : out std_logic;
-			RF_addr_o       : out std_logic_vector(1 downto 0);
-			PCsel_o         : out std_logic_vector(1 downto 0);
-			RF_WregEn_o     : out std_logic;
-			RF_rst_o        : out std_logic;
+			-- Datapath control signal outputs
+			DTCM_wr_o       : out std_logic;
+			DTCM_addr_sel_o : out std_logic;
+			DTCM_addr_out_o : out std_logic;
+			DTCM_addr_in_o  : out std_logic;
+			DTCM_out_o      : out std_logic;
+			ALUFN_o         : out std_logic_vector(2 downto 0);
 			Ain_o           : out std_logic;
-			Cin_o           : out std_logic;
-			Mem_in_o        : out std_logic;
-			Data_MemEn_o    : out std_logic;
-			Pcin_o          : out std_logic;
-			ALU_op_o        : out std_logic_vector(2 downto 0);
+			RF_WregEn_o     : out std_logic;
+			RF_out_o        : out std_logic;
+			RF_addr_rd_o    : out std_logic_vector(1 downto 0);
+			RF_addr_wr_o    : out std_logic_vector(1 downto 0);
+			IRin_o          : out std_logic;
+			PCin_o          : out std_logic;
+			PCsel_o         : out std_logic_vector(1 downto 0);
+			Imm1_in_o       : out std_logic;
+			Imm2_in_o       : out std_logic;
 
+			-- Output flags and status encoding
 			cflag_o         : out std_logic;
 			zflag_o         : out std_logic;
 			nflag_o         : out std_logic;
-			status_bits_o   : out std_logic_vector(9 downto 0)
+			status_bits_o   : out std_logic_vector(14 downto 0);
+			done            : out std_logic
 		);
 	end component;
 
 --------------------------------------------------------
--- Top-level integration component declaration
+-- top component declaration
 --------------------------------------------------------
 	component top is
 		generic(
@@ -155,20 +160,20 @@ package aux_package is
 			clk_i              : in std_logic;
 			rst_i              : in std_logic;
 			ena_i              : in std_logic;
-			done_o             : out std_logic_vector(1 downto 0);
+			done_o             : out std_logic;
 
-			data_in_i          : in std_logic_vector(Dwidth-1 downto 0);
-			prog_wr_addr_i     : in std_logic_vector(Awidth-1 downto 0);
-			prog_wr_en_i       : in std_logic;
-			tb_active_i        : in std_logic;
-			data_wr_addr_i     : in std_logic_vector(Awidth-1 downto 0);
-			data_wr_data_i     : in std_logic_vector(Dwidth-1 downto 0);
-			data_wr_en_i       : in std_logic;
-			data_rd_data_o     : out std_logic_vector(Dwidth-1 downto 0);
-			data_rd_addr_i     : in std_logic_vector(Awidth-1 downto 0)
+			-- TB inputs
+			DTCM_tb_out        : out std_logic_vector(Dwidth-1 downto 0);
+			tb_active_i        : in  std_logic;
+			DTCM_tb_addr_in_i  : in  std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_wr_i       : in  std_logic;
+			DTCM_tb_addr_out_i : in  std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_in_i       : in  std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_in_i       : in  std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_addr_in_i  : in  std_logic_vector(Awidth-1 downto 0);
+			ITCM_tb_wr_i       : in  std_logic
 		);
 	end component;
-
 
 --------------------------------------------------------
 -- RF component declaration
@@ -179,15 +184,16 @@ package aux_package is
 			Awidth : integer := 4
 		);
 		port(
-			clk_i      : in  std_logic;
-			rst_i      : in  std_logic;
-			WregEn_i   : in  std_logic;
-			WregData_i : in  std_logic_vector(Dwidth-1 downto 0);
-			WregAddr_i : in  std_logic_vector(Awidth-1 downto 0);
-			RregAddr_i : in  std_logic_vector(Awidth-1 downto 0);
-			RregData_o : out std_logic_vector(Dwidth-1 downto 0)
+			clk       : in  std_logic;
+			rst       : in  std_logic;
+			WregEn    : in  std_logic;
+			WregData  : in  std_logic_vector(Dwidth-1 downto 0);
+			WregAddr  : in  std_logic_vector(Awidth-1 downto 0);
+			RregAddr  : in  std_logic_vector(Awidth-1 downto 0);
+			RregData  : out std_logic_vector(Dwidth-1 downto 0)
 		);
 	end component;
+
 
 --------------------------------------------------------
 -- dataMem component declaration
@@ -199,14 +205,15 @@ package aux_package is
 			dept   : integer := 64
 		);
 		port(
-			clk_i       : in  std_logic;
-			memEn_i     : in  std_logic;
-			WmemData_i  : in  std_logic_vector(Dwidth-1 downto 0);
-			WmemAddr_i  : in  std_logic_vector(Awidth-1 downto 0);
-			RmemAddr_i  : in  std_logic_vector(Awidth-1 downto 0);
-			RmemData_o  : out std_logic_vector(Dwidth-1 downto 0)
+			clk       : in  std_logic;
+			memEn     : in  std_logic;
+			WmemData  : in  std_logic_vector(Dwidth-1 downto 0);
+			WmemAddr  : in  std_logic_vector(Awidth-1 downto 0);
+			RmemAddr  : in  std_logic_vector(Awidth-1 downto 0);
+			RmemData  : out std_logic_vector(Dwidth-1 downto 0)
 		);
 	end component;
+
 
 --------------------------------------------------------
 -- ProgMem component declaration
@@ -218,12 +225,12 @@ package aux_package is
 			dept   : integer := 64
 		);
 		port(
-			clk_i       : in  std_logic;
-			memEn_i     : in  std_logic;
-			WmemData_i  : in  std_logic_vector(Dwidth-1 downto 0);
-			WmemAddr_i  : in  std_logic_vector(Awidth-1 downto 0);
-			RmemAddr_i  : in  std_logic_vector(Awidth-1 downto 0);
-			RmemData_o  : out std_logic_vector(Dwidth-1 downto 0)
+			clk       : in  std_logic;
+			memEn     : in  std_logic;
+			WmemData  : in  std_logic_vector(Dwidth-1 downto 0);
+			WmemAddr  : in  std_logic_vector(Awidth-1 downto 0);
+			RmemAddr  : in  std_logic_vector(Awidth-1 downto 0);
+			RmemData  : out std_logic_vector(Dwidth-1 downto 0)
 		);
 	end component;
 
@@ -264,9 +271,9 @@ package aux_package is
 	component BidirPin is
 		generic(width : integer := 16);
 		port(
-			Dout_i  : in    std_logic_vector(width-1 downto 0);
-			en_i    : in    std_logic;
-			Din_o   : out   std_logic_vector(width-1 downto 0);
+			Dout    : in    std_logic_vector(width-1 downto 0);
+			en      : in    std_logic;
+			Din		: out   std_logic_vector(width-1 downto 0);
 			IOpin   : inout std_logic_vector(width-1 downto 0)
 		);
 	end component;
@@ -292,40 +299,42 @@ package aux_package is
 			dept   : integer := 64
 		);
 		port(
-			clk_i              : in  std_logic;
-			data_in_i          : in  std_logic_vector(Dwidth-1 downto 0);
-			prog_wr_addr_i     : in  std_logic_vector(Awidth-1 downto 0);
-			prog_wr_en_i       : in  std_logic;
-			tb_active_i        : in  std_logic;
-			data_wr_addr_i     : in  std_logic_vector(Awidth-1 downto 0);
-			data_wr_data_i     : in  std_logic_vector(Dwidth-1 downto 0);
-			data_wr_en_i       : in  std_logic;
-			data_rd_data_o     : out std_logic_vector(Dwidth-1 downto 0);
-			data_rd_addr_i     : in  std_logic_vector(Awidth-1 downto 0);
+			clk_i               : in std_logic;
+			ena_i               : in std_logic;
 
-			alu_c_o            : out std_logic;
-			alu_z_o            : out std_logic;
-			alu_n_o            : out std_logic;
-			opcode_o           : out std_logic_vector(3 downto 0);
+			alu_c_o             : out std_logic;
+			alu_z_o             : out std_logic;
+			alu_n_o             : out std_logic;
+			opcode_o            : out std_logic_vector(3 downto 0);
 
-			RF_out_i           : in  std_logic;
-			data_mem_out_i     : in  std_logic;
-			Cout_i             : in  std_logic;
-			Imm2_in_i          : in  std_logic;
-			Imm1_in_i          : in  std_logic;
-			IRin_i             : in  std_logic;
-			RF_addr_i          : in  std_logic_vector(1 downto 0);
-			PCsel_i            : in  std_logic_vector(1 downto 0);
-			RF_WregEn_i        : in  std_logic;
-			RF_rst_i           : in  std_logic;
-			Ain_i              : in  std_logic;
-			Cin_i              : in  std_logic;
-			Mem_in_i           : in  std_logic;
-			data_MemEn_i       : in  std_logic;
-			PCin_i             : in  std_logic;
-			ALU_op_i           : in  std_logic_vector(2 downto 0)
+			-- control signals
+			DTCM_wr_i           : in std_logic;
+			DTCM_addr_sel_i     : in std_logic;		
+			DTCM_addr_out_i     : in std_logic;	
+			DTCM_addr_in_i      : in std_logic;		
+			DTCM_out_i          : in std_logic;
+			ALUFN_i             : in std_logic_vector(2 downto 0); 
+			Ain_i               : in std_logic;
+			RF_WregEn_i         : in std_logic;
+			RF_out_i            : in std_logic;
+			RF_addr_rd_i        : in std_logic_vector(1 downto 0);
+			RF_addr_wr_i        : in std_logic_vector(1 downto 0);		
+			IRin_i              : in std_logic;
+			PCin_i              : in std_logic;
+			PCsel_i             : in std_logic_vector(1 downto 0);
+			Imm1_in_i           : in std_logic;
+			Imm2_in_i           : in std_logic;
+
+			-- TB inputs/outputs
+			DTCM_tb_out         : out std_logic_vector(Dwidth-1 downto 0);
+			tb_active_i         : in std_logic;
+			DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_wr_i        : in std_logic;
+			DTCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
+			ITCM_tb_wr_i        : in std_logic
 		);
 	end component;
-
 
 end package aux_package;
