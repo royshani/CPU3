@@ -84,13 +84,12 @@ begin
     -- IR
     mapIR: IR generic map(Dwidth) port map (
         clk_i         => clk_i,
-        ena_i         => IRin_i,
-        rst_i         => RF_rst_i,
-        RFaddr_rd_i   => RF_addr_i,
-        RFaddr_wr_i   => RF_addr_i,
+        IRin_i        => ena_i,
+        rst_i         => rst_i,
+        RFaddr_rd_i   => RF_addr_rd_i,
+        RFaddr_wr_i   => RF_addr_wr_i,
         IR_content_i  => instr_r,
         opcode_o      => opcode_o,
-        addr_o        => rf_addr_mux_r,
         signext1_o    => imm1_ext_r,
         signext2_o    => imm2_ext_r,
         imm_to_PC_o   => imm_pc_r

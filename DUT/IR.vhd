@@ -15,7 +15,7 @@ entity IR is
         IR_content_i  : in std_logic_vector(Dwidth-1 downto 0);
 
         opcode_o      : out std_logic_vector(3 downto 0);
-        addr_o        : out std_logic_vector(3 downto 0);
+
         signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
         signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
         imm_to_PC_o   : out std_logic_vector(7 downto 0)
