@@ -147,7 +147,7 @@ begin
     );
 
     -- DFF for memory address read
-    mapMemIn_D_FF_rd: GenericRegister generic map(Dwidth) port map(
+    mapMemIn_D_FF_rd: GenericRegister generic map(Awidth) port map(
         clk_i   => clk_i,
         ena_i   => DTCM_addr_out_i,
         rst_i   => rst_i,
@@ -155,7 +155,7 @@ begin
         q_o     => data_rd_addr_mux_q
     );
 	-- DFF for memory address write
-    mapMemIn_D_FF_wr: GenericRegister generic map(Dwidth) port map(
+    mapMemIn_D_FF_wr: GenericRegister generic map(Awidth) port map(
         clk_i   => clk_i,
         ena_i   => DTCM_addr_in_i,
         rst_i   => rst_i,
