@@ -57,6 +57,31 @@ end ControlUnit;
 architecture ControlArch of ControlUnit is
     -- Internal signal for current FSM state
     signal state_r : std_logic_vector(StateLength-1 downto 0);
+  signal DTCM_wr_i        : std_logic;
+  signal DTCM_addr_sel_i  : std_logic;
+  signal DTCM_addr_out_i  : std_logic;
+  signal DTCM_addr_in_i   : std_logic;
+  signal DTCM_out_i       : std_logic;
+
+  signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
+  signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
+
+  signal IRin_i           : std_logic;
+  signal PCin_i           : std_logic;
+  signal PCsel_i          : std_logic_vector(1 downto 0);
+  signal Imm1_in_i        : std_logic;
+  signal Imm2_in_i        : std_logic;
+
+  signal ALUFN_i          : std_logic_vector(2 downto 0);
+  signal Ain_i            : std_logic;
+  signal RF_WregEn_i      : std_logic;
+  signal RF_out_i         : std_logic;
+
+  -- And if you want to collect flags/status in one bus:
+  signal cflag_i          : std_logic;
+  signal zflag_i          : std_logic;
+  signal nflag_i          : std_logic;
+  signal status_bits_i    : std_logic_vector(14 downto 0);
 begin
 
     ----------------------------------------------------------

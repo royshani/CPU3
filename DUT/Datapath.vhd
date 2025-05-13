@@ -51,11 +51,10 @@ entity Datapath is
 		tb_active_i         : in std_logic;
 		DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
 		DTCM_tb_wr_i        : in std_logic;
-		DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
         DTCM_tb_in_i      	: in std_logic_vector(Dwidth-1 downto 0);
 		ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
         ITCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
-        ITCM_tb_wr_i        : in std_logic;
+        ITCM_tb_wr_i        : in std_logic
 
     );
 end Datapath;

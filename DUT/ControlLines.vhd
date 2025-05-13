@@ -45,8 +45,8 @@ entity ControlLines is
         cflag_o         : out std_logic;
         zflag_o         : out std_logic;
         nflag_o         : out std_logic;
-        status_bits_o   : out std_logic_vector(14 downto 0)
-		done			: out std_logic;
+        status_bits_o   : out std_logic_vector(14 downto 0);
+		done			: out std_logic
     );
 end ControlLines;
 

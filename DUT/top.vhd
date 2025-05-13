@@ -41,23 +41,22 @@ ARCHITECTURE topArch OF top IS
 
     -- Control signals sent to Datapath
 
-    signal RF_WregEn_i      : std_logic; -- Register file control
-    signal Ain_i			: std_logic; -- Register enables and memory address latch
-    signal ALU_op_i         : std_logic_vector(2 downto 0); -- ALU operation code
-	signal DTCM_wr_i        : std_logic;
-	signal DTCM_addr_sel_i  : std_logic;
-	signal DTCM_addr_out_i  : std_logic;
-	signal DTCM_addr_in_i   : std_logic;
-	signal DTCM_out_i       : std_logic;
-	signal ALUFN_i          : std_logic_vector(2 downto 0);
-	signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
-	signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
-	signal IRin_i           : std_logic;
-	signal PCin_i           : std_logic;
-	signal Imm1_in_i        : std_logic;
-	signal Imm2_in_i        : std_logic;
-    signal status_bits_r    : std_logic_vector(14 downto 0); -- Control unit status outputs
-	
+  signal DTCM_addr_sel_i  : std_logic;
+  signal DTCM_addr_out_i  : std_logic;
+  signal DTCM_addr_in_i   : std_logic;
+  signal DTCM_out_i       : std_logic;
+  signal ALUFN_i          : std_logic_vector(2 downto 0);
+  signal Ain_i            : std_logic;
+  signal RF_WregEn_i      : std_logic;
+  signal RF_out_i         : std_logic;
+  signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
+  signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
+  signal IRin_i           : std_logic;
+  signal PCin_i           : std_logic;
+  signal PCsel_i          : std_logic_vector(1 downto 0);
+  signal Imm1_in_i        : std_logic;
+  signal Imm2_in_i        : std_logic;
+  signal status_bits_r    : std_logic_vector(14 downto 0);
 
 BEGIN
 
