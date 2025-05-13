@@ -19,25 +19,26 @@ package aux_package is
 		);
 	end component;
 --------------------------------------------------------
--- IR (Instruction Register) component declaration
+-- IR component declaration
 --------------------------------------------------------
-	component IR is
-		generic(Dwidth : integer := 16);
-		port(
-			clk_i         : in  std_logic;
-			ena_i         : in  std_logic;
-			rst_i         : in  std_logic;
-			RFaddr_rd_i   : in  std_logic_vector(1 downto 0);
-			RFaddr_wr_i   : in  std_logic_vector(1 downto 0);
-			IR_content_i  : in  std_logic_vector(Dwidth-1 downto 0);
+component IR is
+    generic (Dwidth : integer := 16);
+    port (
+        clk_i         : in  std_logic;
+        ena_i         : in  std_logic;
+        rst_i         : in  std_logic;
+        RFaddr_rd_i   : in  std_logic_vector(1 downto 0);
+        RFaddr_wr_i   : in  std_logic_vector(1 downto 0);
+        IR_content_i  : in  std_logic_vector(Dwidth-1 downto 0);
 
-			opcode_o      : out std_logic_vector(3 downto 0);
-			addr_o        : out std_logic_vector(3 downto 0);
-			signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
-			signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
-			imm_to_PC_o   : out std_logic_vector(7 downto 0)
-		);
-	end component;
+        opcode_o      : out std_logic_vector(3 downto 0);
+        addr_o        : out std_logic_vector(3 downto 0);
+        signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
+        signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
+        imm_to_PC_o   : out std_logic_vector(7 downto 0)
+    );
+end component;
+
 
 --------------------------------------------------------
 -- Generic Register component declaration
@@ -48,8 +49,8 @@ package aux_package is
 			clk_i   : in  std_logic;
 			ena_i   : in  std_logic;
 			rst_i   : in  std_logic;
-			in_i    : in  std_logic_vector(Dwidth-1 downto 0);
-			out_o   : out std_logic_vector(Dwidth-1 downto 0)
+			d_i    : in  std_logic_vector(Dwidth-1 downto 0);
+			q_o   : out std_logic_vector(Dwidth-1 downto 0)
 		);
 	end component;
 
