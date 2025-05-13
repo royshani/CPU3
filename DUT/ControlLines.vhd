@@ -234,15 +234,17 @@ begin
 	-- Format: [MOV][DONE][AND][OR][XOR][JNC][JC][JMP][C][Z][N][LD][ST]
 	-- Assign opcode-related bits (excluding bits 4:2)
 	with opcode_i select
-		status_bits_o(14 downto 5) <= "10000000" when "1100", -- mov
-									  "01000000" when "1111", -- done
-									  "00100000" when "0010", -- and
-									  "00010000" when "0011", -- or
-									  "00001000" when "0100", -- xor
-									  "00000100" when "1001", -- jnc
-									  "00000010" when "1000", -- jc
-									  "00000001" when "0111", -- jmp
-									  "00000000" when others;
+		status_bits_o(14 downto 5) <= "1000000000" when "1100", -- mov
+									  "0100000000" when "1111", -- done
+									  "0010000000" when "0010", -- and
+									  "0001000000" when "0011", -- or
+									  "0000100000" when "0100", -- xor
+									  "0000010000" when "1001", -- jnc
+									  "0000001000" when "1000", -- jc
+									  "0000000100" when "0111", -- jmp
+									  "0000000010" when "0001", -- SUB
+									  "0000000001" when "0000", -- ADD
+									  "0000000000" when others;
 
 	-- Assign fixed status bits
 	status_bits_o(4) <= flags_q(2);  -- Carry flag

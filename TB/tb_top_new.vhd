@@ -102,6 +102,7 @@ begin
 			next when not good;
 			DTCM_tb_in <= contentToDataMem;
 			DTCM_tb_addr_in <= conv_std_logic_vector(LineCounter, DTCM_tb_addr_in'length);
+			report "data write Address" severity note;
 			-- report "[DataWriteAddr="& to_string(DTCM_tb_addr_in) &"]" severity note;
 			-- report "[DataWriteData="& to_string(DTCM_tb_in) &"]" severity note;
 			
