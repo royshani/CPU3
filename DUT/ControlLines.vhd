@@ -35,8 +35,8 @@ entity ControlLines is
 		RF_addr_rd_o    : out std_logic_vector(1 downto 0);
         RF_addr_wr_o    : out std_logic_vector(1 downto 0);		
 		IRin_o          : out std_logic;
-		PCin_o          : out std_logic;
-        PCsel_o         : out std_logic_vector(1 downto 0);
+		PCin          : out std_logic;
+        PCsel         : out std_logic_vector(1 downto 0);
         Imm1_in_o       : out std_logic;
 		Imm2_in_o       : out std_logic;
 
@@ -92,14 +92,14 @@ begin
 
         -- Default values (optional: improve robustness)
         bus_ctrl_r      <=  (others => '0');
-        IRin_o          <=  '0';
+        --IRin_o          <=  '0';
         RF_WregEn_o     <=  '0';
         Ain_o           <=  '0';
         DTCM_addr_in_o  <=  '0';
 		DTCM_addr_out_o <=  '0';
 		DTCM_addr_sel_o <=  '0';
         DTCM_wr_o       <=  '0';
-        PCin_o          <=  '0';
+        -- PCin          <=  '0';
         ALUFN_o         <=  "111";
 		RF_addr_rd_o    <=  "00";
         RF_addr_wr_o    <=  "00";
@@ -107,54 +107,73 @@ begin
 
         case state_v is
             when 0 =>  -- reset
-                PCin_o      <= '1';
-				PCsel_o         <=  "00"; -- default values
+                PCin      <= '1';
+				PCsel     <=  "00"; -- default values
+				IRin_o          <=  '0';
+				report "reset state reached" severity note;
 
 
             when 1 =>  -- FETCH
                 IRin_o      <= '1';
-                PCin_o      <= '1';
-				PCsel_o		<= "10";
+                PCin      <= '1';
+				PCsel		<= "10"; -- PC + 1
+				report "fetch state reached" severity note;
 
 
             when 2 =>  -- Register Fetch (RT)
                 bus_ctrl_r   <= "1000"; -- RF_out enabled
                 RF_addr_rd_o <= "10";  -- read rb
                 Ain_o        <= '1';  -- load rb to reg A by ALU
+				PCin          <=  '0';
+				IRin_o          <=  '0';
+				report "RT state reached" severity note;
 
             when 3 =>  -- Jump unconditional
-                PCin_o      <= '1';
-                PCsel_o     <= "01";
+                PCin      <= '1';
+                PCsel     <= "01";
+				
+				report "JUMP state reached" severity note;
 
             when 4 =>  -- Jump conditional (JC, JNC)
                 case concat_op_r is
                     when "10001" =>  -- JC: Carry=1
-                        PCsel_o <= "01"; PCin_o <= '1';
+                        PCsel <= "01"; PCin <= '1';
                     when "10010" =>  -- JNC: Carry=0
-                        PCsel_o <= "01"; PCin_o <= '1';
+                        PCsel <= "01"; PCin <= '1';
                     when others =>
-                        PCsel_o <= "10"; PCin_o <= '0';
+                        PCsel <= "10"; PCin <= '0';
                 end case;
+				report "JC state reached" severity note;
 
             when 5 =>  -- MOVE
                 bus_ctrl_r    <= "0001"; -- Imm1_in
                 Ain_o         <= '1';  -- load rb to reg A by ALU
                 RF_addr_wr_o  <= "01"; -- write to ra
                 RF_WregEn_o   <= '1';
+				PCin          <=  '0';
+				report "MOVE state reached" severity note;
 
             when 6 =>  -- st/ld setup
                 bus_ctrl_r    <= "0010"; -- Imm2_in
                 Ain_o         <= '1';
-
+				report "st/ld state reached" severity note;
+				IRin_o          <=  '0';
+				PCin          <=  '0';
+				
             when 7 =>  -- DONE (NOP)
                 -- all control lines off
-                PCsel_o <= "00";
+                PCsel <= "00";
 				done_r 	<= '1';
+				IRin_o          <=  '0';
+				PCin          <=  '0';
+				report "done state reached" severity note;
 
             when 8 to 12 =>  -- ALU operations: ADD/SUB/AND/OR/XOR
                 bus_ctrl_r    <= "1000"; -- RF_out enable
                 RF_addr_rd_o  <= "11"; -- load rc register to entrance B of ALU
-
+				PCin          <=  '0';
+				IRin_o          <=  '0';
+				
                 case state_v is
                     when 8  => ALUFN_o <= "000";  -- ADD
                     when 9  => ALUFN_o <= "001";  -- SUB
@@ -163,29 +182,43 @@ begin
                     when 12 => ALUFN_o <= "100";  -- XOR
                     when others => null;
                 end case;
+				report "ALU state reached" severity note;
 
             when 13 =>  -- RT writeback
                 RF_addr_wr_o  <= "01";
                 RF_WregEn_o   <= '1';
+				IRin_o          <=  '0';
+				PCin          <=  '0';
+				report "RT writeback state reached" severity note;
 
             when 14 =>  -- st/ld decide
 				bus_ctrl_r    <= "1000";  -- RF_out
 				RF_addr_rd_o  <= "10"; -- sum rb with REG A
 				-- Ain_o         <= '1';  -- load rb to reg A by ALU
+				IRin_o          <=  '0';
 				ALUFN_o       <= "000"; -- for rb load
+				PCin          <=  '0';
+				report "ST/LD decide writeback state reached" severity note;
 
             when 15 =>  -- ST phase 1 (need to make sure bus_a to readAddr
 				RF_addr_rd_o		<= "01";
 				bus_ctrl_r			<= "1000";
-				
+				IRin_o          <=  '0';
+				PCin          <=  '0';
+				report "ST1 writeback state reached" severity note;				
 
             when 16 =>  -- ST → memory write
                 DTCM_wr_o 	  		<= '1'; -- allows us  to load into data memory
                 DTCM_addr_in_o      <= '1'; -- allows the address of the store to be used in mux (need to create mux)
+				IRin_o          <=  '0';
+				PCin          <=  '0';
+				report "ST2 writeback state reached" severity note;
 				
             when 17 =>  -- LD phase 1 
-
+				PCin          <=  '0';
 				DTCM_addr_out_o <= '1';
+				IRin_o          <=  '0';
+				report "LD1 writeback state reached" severity note;
 				
 
             when 18 =>  -- LD → register write 
@@ -194,14 +227,18 @@ begin
 				Ain_o			<= '1';
 				RF_WregEn_o		<= '1';
 				RF_addr_wr_o	<= "01";
+				IRin_o          <=  '0';
+				PCsel			<= "10"; -- PC + 1
+				PCin          <=  '0';
+				report "LD2 writeback state reached" severity note;
 				
 
             when 19 =>  -- DEC (decode)
                 -- Reset fetch lines (IRin, Pcin)
                 IRin_o        <= '0';
-                PCin_o        <= '0';
-                PCsel_o       <= "10";
-
+                PCin        <= '0';
+                PCsel       <= "00";
+				report "decode state reached" severity note;
             when others =>
                 -- Default no-op
                 null;

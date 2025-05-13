@@ -54,8 +54,8 @@ ARCHITECTURE topArch OF top IS
 	 signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
 	 signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
 	 signal IRin_i           : std_logic;
-	 signal PCin_i           : std_logic;
-	 signal PCsel_i          : std_logic_vector(1 downto 0);
+	 signal PCin           : std_logic;
+	 signal PCsel          : std_logic_vector(1 downto 0);
 	 signal Imm1_in_i        : std_logic;
 	 signal Imm2_in_i        : std_logic;
 	 signal status_bits_r    : std_logic_vector(14 downto 0);
@@ -88,8 +88,8 @@ BEGIN
         RF_addr_rd_i       => RF_addr_rd_i,
         RF_addr_wr_i       => RF_addr_wr_i,
         IRin_i             => IRin_i,
-        PCin_i             => PCin_i,
-        PCsel_i            => PCsel_i,
+        PCin             => PCin,
+        PCsel            => PCsel,
         Imm1_in_i          => Imm1_in_i,
         Imm2_in_i          => Imm2_in_i,
 
@@ -128,8 +128,8 @@ BEGIN
         RF_addr_rd_o       => RF_addr_rd_i,
         RF_addr_wr_o       => RF_addr_wr_i,
         IRin_o             => IRin_i,
-        PCin_o             => PCin_i,
-        PCsel_o            => PCsel_i,
+        PCin             => PCin,
+        PCsel            => PCsel,
         Imm1_in_o          => Imm1_in_i,
         Imm2_in_o          => Imm2_in_i,
 

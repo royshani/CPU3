@@ -197,7 +197,7 @@ begin
     -- Stop simulation after 4010 ns
     stop_simulation : process
     begin
-        wait for 100000 ns;
+        wait for 50000 ns;
         report "Simulation ended at 4010 ns" severity note;
         assert false report "Simulation ended" severity failure;
         wait;

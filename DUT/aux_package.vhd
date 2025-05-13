@@ -93,8 +93,8 @@ package aux_package is
 			RF_addr_rd_o    : out std_logic_vector(1 downto 0);
 			RF_addr_wr_o    : out std_logic_vector(1 downto 0);
 			IRin_o          : out std_logic;
-			PCin_o          : out std_logic;
-			PCsel_o         : out std_logic_vector(1 downto 0);
+			PCin          : out std_logic;
+			PCsel         : out std_logic_vector(1 downto 0);
 			Imm1_in_o       : out std_logic;
 			Imm2_in_o       : out std_logic;
 			done			: out std_logic;
@@ -133,8 +133,8 @@ package aux_package is
 			RF_addr_rd_o    : out std_logic_vector(1 downto 0);
 			RF_addr_wr_o    : out std_logic_vector(1 downto 0);
 			IRin_o          : out std_logic;
-			PCin_o          : out std_logic;
-			PCsel_o         : out std_logic_vector(1 downto 0);
+			PCin          : out std_logic;
+			PCsel         : out std_logic_vector(1 downto 0);
 			Imm1_in_o       : out std_logic;
 			Imm2_in_o       : out std_logic;
 
@@ -261,8 +261,8 @@ package aux_package is
 		generic(Awidth : integer := 6);
 		port(
 			clk_i         : in  std_logic;
-			PCin_i        : in  std_logic;
-			PCsel_i       : in  std_logic_vector(1 downto 0);
+			i_PCin        : in  std_logic;
+			i_PCsel       : in  std_logic_vector(1 downto 0);
 			IR_imm_i      : in  std_logic_vector(7 downto 0);
 			currentPC_o   : out std_logic_vector(Awidth-1 downto 0)
 		);
@@ -324,8 +324,8 @@ package aux_package is
 			RF_addr_rd_i        : in std_logic_vector(1 downto 0);
 			RF_addr_wr_i        : in std_logic_vector(1 downto 0);		
 			IRin_i              : in std_logic;
-			PCin_i              : in std_logic;
-			PCsel_i             : in std_logic_vector(1 downto 0);
+			PCin              : in std_logic;
+			PCsel             : in std_logic_vector(1 downto 0);
 			Imm1_in_i           : in std_logic;
 			Imm2_in_i           : in std_logic;
 

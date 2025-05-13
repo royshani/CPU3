@@ -1,18 +1,20 @@
-library ieee;
+library IEEE;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-
-library work;
-use work.aux_package.all;  -- Import FA component declaration from aux_package
+use std.textio.all;
+use ieee.std_logic_textio.all;
+USE work.aux_package.all;
+USE ieee.numeric_std.all;
 
 --------------------------------------------------------------
 entity PCLogic is
     generic(Awidth : integer := 6); -- 2^6 = 64: Program memory address width
     port(
         clk_i        : in std_logic;
-        PCin_i       : in std_logic;
-        PCsel_i      : in std_logic_vector(1 downto 0);
+        i_PCin       : in std_logic;
+        i_PCsel      : in std_logic_vector(1 downto 0);
         IR_imm_i     : in std_logic_vector(7 downto 0);
         currentPC_o  : out std_logic_vector(Awidth-1 downto 0)
     );
@@ -37,17 +39,22 @@ begin
     zero_vector_r <= (others => '0');
     currentPC_o <= PC_q(Awidth-1 downto 0);
     PC_plus1_r <= PC_q + 1;
+	
+	with i_PCsel select
+		next_PC_r <= PC_plus1_r     when "10",
+					 PC_plusIR_r    when "01",
+					 zero_vector_r  when others;
 
-    with PCsel_i select
-        next_PC_r <= PC_plus1_r     when "10",
-                     PC_plusIR_r    when "01",
-                     zero_vector_r  when others;
 
-    PC_reg_proc: process(clk_i)
+    PC_reg_proc: process(clk_i,next_PC_r,i_PCin)
     begin
-        if rising_edge(clk_i) then
-            if PCin_i = '1' then
+        if i_PCin = '1' then
+			if rising_edge(clk_i) then
+
                 PC_q <= next_PC_r;
+				report "PCin_i = " & std_logic'image(i_PCin) severity note;
+				report "i_PCsel = " & integer'image(to_integer(ieee.numeric_std.unsigned(i_PCsel))) severity note;				
+				report "!!!! next PC updated" severity note;
             end if;
         end if;
     end process;

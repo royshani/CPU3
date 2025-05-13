@@ -40,8 +40,8 @@ entity ControlUnit is
 		RF_addr_rd_o    : out std_logic_vector(1 downto 0);
         RF_addr_wr_o    : out std_logic_vector(1 downto 0);		
 		IRin_o          : out std_logic;
-		PCin_o          : out std_logic;
-        PCsel_o         : out std_logic_vector(1 downto 0);
+		PCin          : out std_logic;
+        PCsel         : out std_logic_vector(1 downto 0);
         Imm1_in_o       : out std_logic;
 		Imm2_in_o       : out std_logic;
 
@@ -67,8 +67,8 @@ architecture ControlArch of ControlUnit is
   signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
 
   signal IRin_i           : std_logic;
-  signal PCin_i           : std_logic;
-  signal PCsel_i          : std_logic_vector(1 downto 0);
+
+  
   signal Imm1_in_i        : std_logic;
   signal Imm2_in_i        : std_logic;
 
@@ -129,8 +129,8 @@ begin
             RF_addr_rd_o      => RF_addr_rd_i,
             RF_addr_wr_o      => RF_addr_wr_i,
             IRin_o            => IRin_i,
-            PCin_o            => PCin_i,
-            PCsel_o           => PCsel_i,
+            PCin            => PCin,
+            PCsel           => PCsel,
             Imm1_in_o         => Imm1_in_i,
             Imm2_in_o         => Imm2_in_i,
 

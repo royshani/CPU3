@@ -38,8 +38,8 @@ entity Datapath is
         RF_addr_rd_i    : in std_logic_vector(1 downto 0);
         RF_addr_wr_i    : in std_logic_vector(1 downto 0);		
         IRin_i          : in std_logic;
-        PCin_i          : in std_logic;
-        PCsel_i         : in std_logic_vector(1 downto 0);
+        PCin          : in std_logic;
+        PCsel         : in std_logic_vector(1 downto 0);
         Imm1_in_i       : in std_logic;
         Imm2_in_i       : in std_logic;
 
@@ -104,7 +104,7 @@ begin
 
     -- PC Logic
     mapPC: PCLogic generic map(Awidth) port map(
-        clk_i => clk_i, PCin_i => PCin_i, PCsel_i => PCsel_i,
+        clk_i => clk_i, i_PCin => PCin, i_PCsel => PCsel,
         IR_imm_i => imm_pc_r,
         currentPC_o => pc_addr_r
     );
