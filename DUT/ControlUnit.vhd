@@ -21,7 +21,7 @@ entity ControlUnit is
         ALU_c_i       : in std_logic;  -- Carry
         ALU_z_i       : in std_logic;  -- Zero
         ALU_n_i       : in std_logic;  -- Negative
-
+		done		  : out std_logic;
         -- Instruction opcode (from IR)
         opcode_i      : in std_logic_vector(3 downto 0);
 
@@ -81,6 +81,7 @@ architecture ControlArch of ControlUnit is
   signal cflag_i          : std_logic;
   signal zflag_i          : std_logic;
   signal nflag_i          : std_logic;
+
   signal status_bits_i    : std_logic_vector(14 downto 0);
 begin
 
@@ -113,7 +114,7 @@ begin
             ALU_c_i         => ALU_c_i,
             ALU_z_i         => ALU_z_i,
             ALU_n_i         => ALU_n_i,
-
+			done			=> done,
             -- Outputs to datapath
             DTCM_wr_o         => DTCM_wr_i,
             DTCM_addr_sel_o   => DTCM_addr_sel_i,

@@ -111,7 +111,7 @@ BEGIN
         ALU_z_i            => alu_z_o,
         ALU_n_i            => alu_n_o,
         opcode_i           => opcode_o,
-
+		done			   => done_o,
         DTCM_wr_o          => DTCM_wr_i,
         DTCM_addr_sel_o    => DTCM_addr_sel_i,
         DTCM_addr_out_o    => DTCM_addr_out_i,
@@ -133,6 +133,6 @@ BEGIN
         status_bits_o      => status_bits_r(14 downto 0)
         
     );
-	done_o <= status_bits_r(13);
+
 
 END topArch;

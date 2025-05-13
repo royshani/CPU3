@@ -46,7 +46,7 @@ entity ControlLines is
         zflag_o         : out std_logic;
         nflag_o         : out std_logic;
         status_bits_o   : out std_logic_vector(14 downto 0);
-		done			: out std_logic
+		done			: out std_logic := '0'
     );
 end ControlLines;
 
@@ -60,7 +60,7 @@ architecture ctrlArch of ControlLines is
     signal bus_ctrl_r    : std_logic_vector(3 downto 0); -- (RF_out, Data_mem_out, Imm2_in, Imm1_in)
     signal flags_q       : std_logic_vector(2 downto 0); -- Stored flags (C, Z, N)
     signal concat_op_r   : std_logic_vector(4 downto 0); -- (opcode & cflag) for jump decision logic
-
+	signal done_r		 : std_logic :='0';
 begin
 
     -- Assign bus control signals
@@ -103,7 +103,7 @@ begin
         ALUFN_o         <=  "111";
 		RF_addr_rd_o    <=  "00";
         RF_addr_wr_o    <=  "00";
-		done		 	<=  '0';
+
 
         case state_v is
             when 0 =>  -- reset
@@ -149,7 +149,7 @@ begin
             when 7 =>  -- DONE (NOP)
                 -- all control lines off
                 PCsel_o <= "00";
-				done 	<= '1';
+				done_r 	<= '1';
 
             when 8 to 12 =>  -- ALU operations: ADD/SUB/AND/OR/XOR
                 bus_ctrl_r    <= "1000"; -- RF_out enable
@@ -252,5 +252,5 @@ begin
 	status_bits_o(2) <= flags_q(0);  -- Negative flag
 	status_bits_o(1) <= '1' when opcode_i = "1101" else '0'; -- Load
 	status_bits_o(0) <= '1' when opcode_i = "1110" else '0'; -- Store
-
+	done <= done_r;
 end ctrlArch;

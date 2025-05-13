@@ -97,6 +97,7 @@ package aux_package is
 			PCsel_o         : out std_logic_vector(1 downto 0);
 			Imm1_in_o       : out std_logic;
 			Imm2_in_o       : out std_logic;
+			done			: out std_logic;
 
 			-- Debug/status output
 			status_bits_o   : out std_logic_vector(14 downto 0)
