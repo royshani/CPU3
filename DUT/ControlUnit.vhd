@@ -107,6 +107,7 @@ begin
         port map (
             clk_i           => clk_i,
             rst_i           => rst_i,
+			ena_i			=> ena_i,
             state_i         => state_r,
             opcode_i        => opcode_i,
             ALU_c_i         => ALU_c_i,
@@ -132,10 +133,7 @@ begin
             Imm2_in_o         => Imm2_in_i,
 
             -- Flags to status register
-            cflag_o         => status_bits_o(12),
-            zflag_o         => status_bits_o(11),
-            nflag_o         => status_bits_o(10),
-            status_bits_o   => status_bits_o(9 downto 0)
+            status_bits_o   => status_bits_o(14 downto 0)
         );
 
 end ControlArch;

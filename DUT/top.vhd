@@ -45,6 +45,7 @@ ARCHITECTURE topArch OF top IS
   signal DTCM_addr_out_i  : std_logic;
   signal DTCM_addr_in_i   : std_logic;
   signal DTCM_out_i       : std_logic;
+  signal DTCM_wr_i 		  : std_logic;
   signal ALUFN_i          : std_logic_vector(2 downto 0);
   signal Ain_i            : std_logic;
   signal RF_WregEn_i      : std_logic;
@@ -64,6 +65,7 @@ BEGIN
     mapDatapath: Datapath generic map(Dwidth, Awidth, dept) port map(
         clk_i              => clk_i,
         ena_i              => ena_i,
+		rst_i              => rst_i,
 
         alu_c_o            => alu_c_o,
         alu_z_o            => alu_z_o,
@@ -128,9 +130,9 @@ BEGIN
         Imm2_in_o          => Imm2_in_i,
 
 
-        status_bits_o      => status_bits_r(14 downto 0),
-        done_o             => status_bits_r(13)
+        status_bits_o      => status_bits_r(14 downto 0)
+        
     );
-
+	done_o <= status_bits_r(13);
 
 END topArch;

@@ -301,7 +301,8 @@ package aux_package is
 		port(
 			clk_i               : in std_logic;
 			ena_i               : in std_logic;
-
+			rst_i				: in std_logic;
+			
 			alu_c_o             : out std_logic;
 			alu_z_o             : out std_logic;
 			alu_n_o             : out std_logic;
@@ -329,6 +330,7 @@ package aux_package is
 			DTCM_tb_out         : out std_logic_vector(Dwidth-1 downto 0);
 			tb_active_i         : in std_logic;
 			DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_addr_out_i  : in std_logic_vector(Awidth-1 downto 0);
 			DTCM_tb_wr_i        : in std_logic;
 			DTCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
 			ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
