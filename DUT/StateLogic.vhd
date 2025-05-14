@@ -15,7 +15,7 @@ entity StateLogic is
         ena_i         : in std_logic;
         rst_i         : in std_logic;
         ALU_cflag_i   : in std_logic;
-        opcode_i      : in std_logic_vector(3 downto 0);
+        i_opcode      : in std_logic_vector(3 downto 0);
         current_state_o : out std_logic_vector(StateLength-1 downto 0)
     );
 end StateLogic;
@@ -74,7 +74,7 @@ begin
         variable opcode_v        : integer range 0 to 15;
     begin
         current_state_v := conv_integer(current_state_q);
-        opcode_v := conv_integer(opcode_i);
+        opcode_v := conv_integer(i_opcode);
 
         if rst_i = '1' then
             next_state_r <= ST_IDLE;

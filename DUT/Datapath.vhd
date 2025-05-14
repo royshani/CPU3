@@ -23,7 +23,7 @@ entity Datapath is
         alu_c_o             : out std_logic;
         alu_z_o             : out std_logic;
         alu_n_o             : out std_logic;
-        opcode_o            : out std_logic_vector(3 downto 0);
+        o_opcode            : out std_logic_vector(3 downto 0);
 
 		-- control signals
         DTCM_wr_i       : in std_logic;
@@ -31,7 +31,7 @@ entity Datapath is
         DTCM_addr_out_i : in std_logic;	
         DTCM_addr_in_i  : in std_logic;		
         DTCM_out_i      : in std_logic;
-        ALUFN_i         : in std_logic_vector(2 downto 0); 
+        ALU_op         : in std_logic_vector(2 downto 0); 
         Ain_i           : in std_logic;
         RF_WregEn_i     : in std_logic;
         RF_out_i        : in std_logic;
@@ -89,7 +89,7 @@ begin
         RFaddr_rd_i   => RF_addr_rd_i,
         RFaddr_wr_i   => RF_addr_wr_i,
         IR_content_i  => instr_r,
-        opcode_o      => opcode_o,
+        o_opcode      => o_opcode,
         signext1_o    => imm1_ext_r,
         signext2_o    => imm2_ext_r,
         imm_to_PC_o   => imm_pc_r
@@ -120,7 +120,7 @@ begin
     mapALU: ALU_main generic map(Dwidth) port map(
         reg_a_q_i   => reg_a_q,
         reg_b_r_i   => bus_b_r,
-        alu_op_i    => ALUFN_i,
+        i_ctrl    	=> ALU_op,
 		Ain_i		=> Ain_i,
         result_o    => bus_a_r,
         cflag_o     => alu_c_o,
@@ -162,35 +162,31 @@ begin
     );
 
 	-- Imm1
-	tristate_imm1: BidirPin generic map(width => Dwidth) port map(
-		Dout  => imm1_ext_r,
-		en    => Imm1_in_i,
-		Din   => open,           -- or connect if needed
-		IOpin => bus_b_r
+	tristate_imm1: BidirPin generic map(Dwidth) port map(
+		i_data  => imm1_ext_r,
+		enable_out    => Imm1_in_i,
+		o_data => bus_b_r
 	);
 
 	-- Imm2
-	tristate_imm2: BidirPin generic map(width => Dwidth) port map(
-		Dout  => imm2_ext_r,
-		en    => Imm2_in_i,
-		Din   => open,
-		IOpin => bus_b_r
+	tristate_imm2: BidirPin generic map(Dwidth) port map(
+		i_data  => imm2_ext_r,
+		enable_out    => Imm2_in_i,
+		o_data => bus_b_r
 	);
 
 	-- Register File output
-	tristate_RF_data: BidirPin generic map(width => Dwidth) port map(
-		Dout  => rf_data_r,
-		en    => RF_out_i,
-		Din   => open,
-		IOpin => bus_b_r
+	tristate_RF_data: BidirPin generic map(Dwidth) port map(
+		i_data  => rf_data_r,
+		enable_out    => RF_out_i,
+		o_data => bus_b_r
 	);
 
 	-- Data memory output
-	tristate_data_out: BidirPin generic map(width => Dwidth) port map(
-		Dout  => data_mem_out_r,
-		en    => DTCM_out_i,
-		Din   => open,
-		IOpin => bus_b_r
+	tristate_data_out: BidirPin generic map(Dwidth) port map(
+		i_data  => data_mem_out_r,
+		enable_out    => DTCM_out_i,
+		o_data => bus_b_r
 	);
     -- Output to TB
     DTCM_tb_out <= data_mem_out_r;

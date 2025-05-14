@@ -14,7 +14,7 @@ entity IR is
 		RFaddr_wr_i  : in std_logic_vector(1 downto 0);
         IR_content_i  : in std_logic_vector(Dwidth-1 downto 0);
 
-        opcode_o      : out std_logic_vector(3 downto 0);
+        o_OPCODE      : out std_logic_vector(3 downto 0);
         signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
         signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
         imm_to_PC_o   : out std_logic_vector(7 downto 0)
@@ -48,7 +48,7 @@ begin
     end process;
 
     -- Field extraction from IR register
-    opcode_o     <= IR_q(15 downto 12);
+    o_OPCODE     <= IR_q(15 downto 12);
     ra_r         <= IR_q(11 downto 8);
     rb_r         <= IR_q(7 downto 4);
     rc_r         <= IR_q(3 downto 0);

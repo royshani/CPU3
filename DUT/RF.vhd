@@ -1,8 +1,12 @@
-library ieee;
+library IEEE;
+
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 use ieee.std_logic_unsigned.all;
-use work.aux_package.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
+USE work.aux_package.all;
+USE ieee.numeric_std.all;
 --------------------------------------------------------------
 entity RF is
 generic( Dwidth: integer:=16;
@@ -37,5 +41,6 @@ begin
   end process;
 	
   RregData <= sysRF(conv_integer(RregAddr));
+  
 
 end behav;

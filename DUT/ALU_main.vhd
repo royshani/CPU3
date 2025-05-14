@@ -1,15 +1,19 @@
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
-use work.aux_package.all;
+
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
+USE work.aux_package.all;
+USE ieee.numeric_std.all;
 
 entity ALU_main is
     generic (Dwidth : integer := 16);
     port (
         reg_a_q_i : in  std_logic_vector(Dwidth-1 downto 0);
         reg_b_r_i : in  std_logic_vector(Dwidth-1 downto 0);
-        alu_op_i  : in  std_logic_vector(2 downto 0);
+        i_ctrl  : in  std_logic_vector(2 downto 0);
 		Ain_i	  : in	std_logic;
         result_o  : out std_logic_vector(Dwidth-1 downto 0);
         cflag_o   : out std_logic;
@@ -43,8 +47,8 @@ begin
     alu_a_r <= reg_a_q_i;
     alu_b_r <= reg_b_r_i;
 
-    manip_b_r <= not alu_b_r when alu_op_i = "001" else alu_b_r;
-    cin_r     <= '1' when alu_op_i = "001" else '0';
+    manip_b_r <= not alu_b_r when i_ctrl = "001" else alu_b_r;
+    cin_r     <= '1' when i_ctrl = "001" else '0';
 
     -- Ripple Carry Adder/Subtractor --
     MapFirstFA : FA port map (
@@ -66,9 +70,10 @@ begin
     end generate;
 
     -- Output logic and flag assignment
-	process(alu_op_i, alu_a_r, alu_b_r, Ain_i)
+	process(i_ctrl, alu_a_r, alu_b_r, Ain_i)
 	begin
-		case alu_op_i is
+		report "ALU OPERATION" severity note;
+		case i_ctrl is
 			when "000" => alu_result_r <= addsub_r;
 			when "001" => alu_result_r <= addsub_r;
 			when "010" => alu_result_r <= reg_a_q_i and reg_b_r_i;
@@ -82,12 +87,17 @@ begin
 				end if;
 			when others =>
 				alu_result_r <= (others => '0');
+
 		end case;
+		report "ALU op = " & integer'image(to_integer(ieee.numeric_std.unsigned(i_ctrl))) severity note;
+		report "ALU res = " & integer'image(to_integer(ieee.numeric_std.unsigned(alu_result_r))) severity note;
+		report "REGA = " & integer'image(to_integer(ieee.numeric_std.unsigned(alu_a_r))) severity note;
+		report "REGB = " & integer'image(to_integer(ieee.numeric_std.unsigned(alu_b_r))) severity note;
 	end process;
 
     nflag_o <= alu_result_r(Dwidth-1);
     zflag_o <= '1' when alu_result_r = zero_w else '0';
-    cflag_o <= ripple_w(Dwidth-1) when (alu_op_i = "000" or alu_op_i = "001") else '0';
+    cflag_o <= ripple_w(Dwidth-1) when (i_ctrl = "000" or i_ctrl = "001") else '0';
     result_o <= alu_result_r;
 
 end ALUarch;

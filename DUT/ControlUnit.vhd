@@ -23,7 +23,7 @@ entity ControlUnit is
         ALU_n_i       : in std_logic;  -- Negative
 		done		  : out std_logic;
         -- Instruction opcode (from IR)
-        opcode_i      : in std_logic_vector(3 downto 0);
+        i_opcode      : in std_logic_vector(3 downto 0);
 
         -- Datapath control signals
         DTCM_wr_o       : out std_logic;
@@ -31,7 +31,7 @@ entity ControlUnit is
 		DTCM_addr_out_o : out std_logic;	
         DTCM_addr_in_o  : out std_logic;		
         DTCM_out_o      : out std_logic;
-        ALUFN_o         : out std_logic_vector(2 downto 0); -- !!! needs to be change to ALUFN_o
+        ALU_op         : out std_logic_vector(2 downto 0); -- !!! needs to be change to ALUFN_o
         Ain_o           : out std_logic;
         RF_WregEn_o     : out std_logic;
         RF_out_o        : out std_logic;
@@ -73,7 +73,6 @@ architecture ControlArch of ControlUnit is
   signal Imm2_in_i        : std_logic;
 
 
-  signal ALUFN_i          : std_logic_vector(2 downto 0);
   signal Ain_i            : std_logic;
   signal RF_WregEn_i      : std_logic;
   signal RF_out_i         : std_logic;
@@ -96,7 +95,7 @@ begin
             ena_i           => ena_i,
             rst_i           => rst_i,
             ALU_cflag_i     => ALU_c_i,
-            opcode_i        => opcode_i,
+            i_opcode        => i_opcode,
             current_state_o => state_r
         );
 
@@ -111,7 +110,7 @@ begin
             rst_i           => rst_i,
 			ena_i			=> ena_i,
             state_i         => state_r,
-            opcode_i        => opcode_i,
+            i_opcode        => i_opcode,
             ALU_c_i         => ALU_c_i,
             ALU_z_i         => ALU_z_i,
             ALU_n_i         => ALU_n_i,
@@ -122,7 +121,7 @@ begin
             DTCM_addr_out_o   => DTCM_addr_out_i,
             DTCM_addr_in_o    => DTCM_addr_in_i,
             DTCM_out_o        => DTCM_out_i,
-            ALUFN_o           => ALUFN_i,
+            ALU_op           => ALU_op,
             Ain_o             => Ain_i,
             RF_WregEn_o       => RF_WregEn_i,
             RF_out_o          => RF_out_i,

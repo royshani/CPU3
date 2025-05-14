@@ -1,23 +1,19 @@
--- Roy comment: think it needs to be replaced with bus_pour_tristate
-
 library ieee;
 use ieee.std_logic_1164.all;
-use work.aux_package.all;
 -----------------------------------------------------------------
+--this component exists to save time writing the same code in different modules
 entity BidirPin is
-	generic( width: integer:=16 );
-	port(   Dout: 	in 		std_logic_vector(width-1 downto 0);
-			en:		in 		std_logic;
-			Din:	out		std_logic_vector(width-1 downto 0);
-			IOpin: 	inout 	std_logic_vector(width-1 downto 0)
+	generic( Dwidth: integer:=16 );
+	port(
+			i_data: in std_logic_vector(Dwidth-1 downto 0);
+			o_data: out std_logic_vector(Dwidth-1 downto 0);
+			enable_out: in std_logic -- controls whether the data is poured out
 	);
 end BidirPin;
-
-architecture comb of BidirPin is
+---------------------------------------------------------
+architecture b_tristate of BidirPin is
 begin 
+	o_data <= i_data when enable_out='1' else (others => 'Z'); -- when enable=1, the input data is shortened to the output, else - high-z.
 
-	Din  <= IOpin;
-	IOpin <= Dout when(en='1') else (others => 'Z');
-	
-end comb;
+end b_tristate;
 

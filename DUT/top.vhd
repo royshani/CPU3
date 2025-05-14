@@ -38,7 +38,7 @@ ARCHITECTURE topArch OF top IS
 
     -- Signals from Datapath to Control (flags and opcode)
     signal alu_c_o, alu_z_o, alu_n_o : std_logic;                    -- ALU flags: carry, zero, negative
-    signal opcode_o                  : std_logic_vector(3 downto 0); -- Opcode extracted from instruction
+    signal opcode                  : std_logic_vector(3 downto 0); -- Opcode extracted from instruction
 
     -- Control signals sent to Datapath
 
@@ -47,7 +47,7 @@ ARCHITECTURE topArch OF top IS
 	 signal DTCM_addr_in_i   : std_logic;
 	 signal DTCM_out_i       : std_logic;
 	 signal DTCM_wr_i 		  : std_logic;
-	 signal ALUFN_i          : std_logic_vector(2 downto 0);
+	 signal ALU_op          : std_logic_vector(2 downto 0);
 	 signal Ain_i            : std_logic;
 	 signal RF_WregEn_i      : std_logic;
 	 signal RF_out_i         : std_logic;
@@ -72,7 +72,7 @@ BEGIN
         alu_c_o            => alu_c_o,
         alu_z_o            => alu_z_o,
         alu_n_o            => alu_n_o,
-        opcode_o           => opcode_o,
+        o_opcode           => opcode,
 		
 
 		
@@ -81,7 +81,7 @@ BEGIN
         DTCM_addr_out_i    => DTCM_addr_out_i,
         DTCM_addr_in_i     => DTCM_addr_in_i,
         DTCM_out_i         => DTCM_out_i,
-        ALUFN_i            => ALUFN_i,
+        ALU_op            => ALU_op,
         Ain_i              => Ain_i,
         RF_WregEn_i        => RF_WregEn_i,
         RF_out_i           => RF_out_i,
@@ -114,14 +114,14 @@ BEGIN
         ALU_c_i            => alu_c_o,
         ALU_z_i            => alu_z_o,
         ALU_n_i            => alu_n_o,
-        opcode_i           => opcode_o,
+        i_opcode           => opcode,
 		done			   => done_r,
         DTCM_wr_o          => DTCM_wr_i,
         DTCM_addr_sel_o    => DTCM_addr_sel_i,
         DTCM_addr_out_o    => DTCM_addr_out_i,
         DTCM_addr_in_o     => DTCM_addr_in_i,
         DTCM_out_o         => DTCM_out_i,
-        ALUFN_o            => ALUFN_i,
+        ALU_op            => ALU_op,
         Ain_o              => Ain_i,
         RF_WregEn_o        => RF_WregEn_i,
         RF_out_o           => RF_out_i,

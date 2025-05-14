@@ -14,7 +14,7 @@ package aux_package is
 			ena_i           : in  std_logic;
 			rst_i           : in  std_logic;
 			ALU_cflag_i     : in  std_logic;
-			opcode_i        : in  std_logic_vector(3 downto 0);
+			i_opcode        : in  std_logic_vector(3 downto 0);
 			current_state_o : out std_logic_vector(StateLength-1 downto 0)
 		);
 	end component;
@@ -30,7 +30,7 @@ package aux_package is
 			RFaddr_rd_i   : in  std_logic_vector(1 downto 0);
 			RFaddr_wr_i   : in  std_logic_vector(1 downto 0);
 			IR_content_i  : in  std_logic_vector(Dwidth-1 downto 0);
-			opcode_o      : out std_logic_vector(3 downto 0);
+			o_opcode      : out std_logic_vector(3 downto 0);
 			signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
 			signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
 			imm_to_PC_o   : out std_logic_vector(7 downto 0)
@@ -78,7 +78,7 @@ package aux_package is
 			ALU_n_i       : in std_logic;
 
 			-- Instruction opcode
-			opcode_i      : in std_logic_vector(3 downto 0);
+			i_opcode      : in std_logic_vector(3 downto 0);
 
 			-- Datapath control signals
 			DTCM_wr_o       : out std_logic;
@@ -86,7 +86,7 @@ package aux_package is
 			DTCM_addr_out_o : out std_logic;
 			DTCM_addr_in_o  : out std_logic;
 			DTCM_out_o      : out std_logic;
-			ALUFN_o         : out std_logic_vector(2 downto 0);
+			ALU_op         : out std_logic_vector(2 downto 0);
 			Ain_o           : out std_logic;
 			RF_WregEn_o     : out std_logic;
 			RF_out_o        : out std_logic;
@@ -115,7 +115,7 @@ package aux_package is
 			rst_i        : in std_logic;
 			ena_i        : in std_logic;
 			state_i      : in std_logic_vector(StateLength-1 downto 0);
-			opcode_i     : in std_logic_vector(3 downto 0);
+			i_opcode     : in std_logic_vector(3 downto 0);
 			ALU_c_i      : in std_logic;
 			ALU_z_i      : in std_logic;
 			ALU_n_i      : in std_logic;
@@ -126,7 +126,7 @@ package aux_package is
 			DTCM_addr_out_o : out std_logic;
 			DTCM_addr_in_o  : out std_logic;
 			DTCM_out_o      : out std_logic;
-			ALUFN_o         : out std_logic_vector(2 downto 0);
+			ALU_op         : out std_logic_vector(2 downto 0);
 			Ain_o           : out std_logic;
 			RF_WregEn_o     : out std_logic;
 			RF_out_o        : out std_logic;
@@ -245,7 +245,7 @@ package aux_package is
 		port (
 			reg_a_q_i   : in  std_logic_vector(Dwidth-1 downto 0);
 			reg_b_r_i   : in  std_logic_vector(Dwidth-1 downto 0);
-			alu_op_i    : in  std_logic_vector(2 downto 0);
+			i_ctrl	    : in  std_logic_vector(2 downto 0);
 			Ain_i	 	: in  std_logic;
 			result_o    : out std_logic_vector(Dwidth-1 downto 0);
 			cflag_o     : out std_logic;
@@ -272,12 +272,11 @@ package aux_package is
 -- BidirPin component declaration
 --------------------------------------------------------
 	component BidirPin is
-		generic(width : integer := 16);
+		generic(Dwidth : integer := 16);
 		port(
-			Dout    : in    std_logic_vector(width-1 downto 0);
-			en      : in    std_logic;
-			Din		: out   std_logic_vector(width-1 downto 0);
-			IOpin   : inout std_logic_vector(width-1 downto 0)
+			i_data    : in    std_logic_vector(Dwidth-1 downto 0);
+			enable_out      : in    std_logic;
+			o_data   : inout std_logic_vector(Dwidth-1 downto 0)
 		);
 	end component;
 
@@ -309,7 +308,7 @@ package aux_package is
 			alu_c_o             : out std_logic;
 			alu_z_o             : out std_logic;
 			alu_n_o             : out std_logic;
-			opcode_o            : out std_logic_vector(3 downto 0);
+			o_opcode            : out std_logic_vector(3 downto 0);
 
 			-- control signals
 			DTCM_wr_i           : in std_logic;
@@ -317,7 +316,7 @@ package aux_package is
 			DTCM_addr_out_i     : in std_logic;	
 			DTCM_addr_in_i      : in std_logic;		
 			DTCM_out_i          : in std_logic;
-			ALUFN_i             : in std_logic_vector(2 downto 0); 
+			ALU_op             : in std_logic_vector(2 downto 0); 
 			Ain_i               : in std_logic;
 			RF_WregEn_i         : in std_logic;
 			RF_out_i            : in std_logic;
