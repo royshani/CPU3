@@ -10,12 +10,12 @@ package aux_package is
 	component StateLogic is
 		generic(StateLength : integer := 5);
 		port(
-			clk_i           : in  std_logic;
-			ena_i           : in  std_logic;
-			rst_i           : in  std_logic;
-			ALU_cflag_i     : in  std_logic;
-			i_opcode        : in  std_logic_vector(3 downto 0);
-			current_state_o : out std_logic_vector(StateLength-1 downto 0)
+			clk           : in  std_logic;
+			ena           : in  std_logic;
+			rst           : in  std_logic;
+			ALU_cflag     : in  std_logic;
+			opcode        : in  std_logic_vector(3 downto 0);
+			current_state : out std_logic_vector(StateLength-1 downto 0)
 		);
 	end component;
 --------------------------------------------------------
@@ -24,16 +24,17 @@ package aux_package is
 	component IR is
 		generic (Dwidth : integer := 16);
 		port (
-			clk_i         : in  std_logic;
-			ena_i         : in  std_logic;
-			rst_i         : in  std_logic;
-			RFaddr_rd_i   : in  std_logic_vector(1 downto 0);
-			RFaddr_wr_i   : in  std_logic_vector(1 downto 0);
-			IR_content_i  : in  std_logic_vector(Dwidth-1 downto 0);
-			o_opcode      : out std_logic_vector(3 downto 0);
-			signext1_o    : out std_logic_vector(Dwidth-1 downto 0);
-			signext2_o    : out std_logic_vector(Dwidth-1 downto 0);
-			imm_to_PC_o   : out std_logic_vector(7 downto 0)
+			clk         : in  std_logic;
+			ena         : in  std_logic;
+			rst         : in  std_logic;
+			RF_addr_rd   : in  std_logic_vector(1 downto 0);
+			RF_addr_wr   : in  std_logic_vector(1 downto 0);
+			addr_rd, addr_wr   : out std_logic_vector(3 downto 0);
+			IR_content  : in  std_logic_vector(Dwidth-1 downto 0);
+			opcode      : out std_logic_vector(3 downto 0);
+			signext1    : out std_logic_vector(Dwidth-1 downto 0);
+			signext2    : out std_logic_vector(Dwidth-1 downto 0);
+			imm_to_PC   : out std_logic_vector(7 downto 0)
 		);
 	end component;
 
@@ -44,11 +45,11 @@ package aux_package is
 	component GenericRegister is
 		generic(Dwidth : integer := 16);
 		port(
-			clk_i   : in  std_logic;
-			ena_i   : in  std_logic;
-			rst_i   : in  std_logic;
-			d_i    : in  std_logic_vector(Dwidth-1 downto 0);
-			q_o   : out std_logic_vector(Dwidth-1 downto 0)
+			clk   : in  std_logic;
+			ena   : in  std_logic;
+			rst   : in  std_logic;
+			d    : in  std_logic_vector(Dwidth-1 downto 0);
+			q   : out std_logic_vector(Dwidth-1 downto 0)
 		);
 	end component;
 
@@ -68,39 +69,39 @@ package aux_package is
 		generic(StateLength : integer := 5);
 		port(
 			-- Clock, Reset, Enable
-			clk_i         : in std_logic;
-			rst_i         : in std_logic;
-			ena_i         : in std_logic;
+			clk         : in std_logic;
+			rst         : in std_logic;
+			ena         : in std_logic;
 
 			-- ALU status flags
-			ALU_c_i       : in std_logic;
-			ALU_z_i       : in std_logic;
-			ALU_n_i       : in std_logic;
+			ALU_c       : in std_logic;
+			ALU_z       : in std_logic;
+			ALU_n       : in std_logic;
 
 			-- Instruction opcode
-			i_opcode      : in std_logic_vector(3 downto 0);
+			opcode      : in std_logic_vector(3 downto 0);
 
 			-- Datapath control signals
-			DTCM_wr_o       : out std_logic;
-			DTCM_addr_sel_o : out std_logic;
-			DTCM_addr_out_o : out std_logic;
-			DTCM_addr_in_o  : out std_logic;
-			DTCM_out_o      : out std_logic;
+			DTCM_wr       : out std_logic;
+			DTCM_addr_sel : out std_logic;
+			DTCM_addr_out : out std_logic;
+			DTCM_addr_in  : out std_logic;
+			DTCM_out      : out std_logic;
 			ALU_op         : out std_logic_vector(2 downto 0);
-			Ain_o           : out std_logic;
-			RF_WregEn_o     : out std_logic;
-			RF_out_o        : out std_logic;
-			RF_addr_rd_o    : out std_logic_vector(1 downto 0);
-			RF_addr_wr_o    : out std_logic_vector(1 downto 0);
-			IRin_o          : out std_logic;
+			Ain           : out std_logic;
+			RF_WregEn     : out std_logic;
+			RF_out        : out std_logic;
+			RF_addr_rd    : out std_logic_vector(1 downto 0);
+			RF_addr_wr    : out std_logic_vector(1 downto 0);
+			IRin          : out std_logic;
 			PCin          : out std_logic;
 			PCsel         : out std_logic_vector(1 downto 0);
-			Imm1_in_o       : out std_logic;
-			Imm2_in_o       : out std_logic;
+			Imm1_in       : out std_logic;
+			Imm2_in       : out std_logic;
 			done			: out std_logic;
 
 			-- Debug/status output
-			status_bits_o   : out std_logic_vector(14 downto 0)
+			status_bits   : out std_logic_vector(14 downto 0)
 		);
 	end component;
 
@@ -111,38 +112,38 @@ package aux_package is
 		generic(StateLength : integer := 5);
 		port(
 			-- ControlUnit inputs
-			clk_i        : in std_logic;
-			rst_i        : in std_logic;
-			ena_i        : in std_logic;
-			state_i      : in std_logic_vector(StateLength-1 downto 0);
-			i_opcode     : in std_logic_vector(3 downto 0);
-			ALU_c_i      : in std_logic;
-			ALU_z_i      : in std_logic;
-			ALU_n_i      : in std_logic;
+			clk        : in std_logic;
+			rst        : in std_logic;
+			ena        : in std_logic;
+			state      : in std_logic_vector(StateLength-1 downto 0);
+			opcode     : in std_logic_vector(3 downto 0);
+			ALU_c      : in std_logic;
+			ALU_z      : in std_logic;
+			ALU_n      : in std_logic;
 
 			-- Datapath control signal outputs
-			DTCM_wr_o       : out std_logic;
-			DTCM_addr_sel_o : out std_logic;
-			DTCM_addr_out_o : out std_logic;
-			DTCM_addr_in_o  : out std_logic;
-			DTCM_out_o      : out std_logic;
+			DTCM_wr       : out std_logic;
+			DTCM_addr_sel : out std_logic;
+			DTCM_addr_out : out std_logic;
+			DTCM_addr_in  : out std_logic;
+			DTCM_out      : out std_logic;
 			ALU_op         : out std_logic_vector(2 downto 0);
-			Ain_o           : out std_logic;
-			RF_WregEn_o     : out std_logic;
-			RF_out_o        : out std_logic;
-			RF_addr_rd_o    : out std_logic_vector(1 downto 0);
-			RF_addr_wr_o    : out std_logic_vector(1 downto 0);
-			IRin_o          : out std_logic;
+			Ain           : out std_logic;
+			RF_WregEn     : out std_logic;
+			RF_out        : out std_logic;
+			RF_addr_rd    : out std_logic_vector(1 downto 0);
+			RF_addr_wr    : out std_logic_vector(1 downto 0);
+			IRin          : out std_logic;
 			PCin          : out std_logic;
 			PCsel         : out std_logic_vector(1 downto 0);
-			Imm1_in_o       : out std_logic;
-			Imm2_in_o       : out std_logic;
+			Imm1_in       : out std_logic;
+			Imm2_in       : out std_logic;
 
 			-- Output flags and status encoding
-			cflag_o         : out std_logic;
-			zflag_o         : out std_logic;
-			nflag_o         : out std_logic;
-			status_bits_o   : out std_logic_vector(14 downto 0);
+			cflag         : out std_logic;
+			zflag         : out std_logic;
+			nflag         : out std_logic;
+			status_bits   : out std_logic_vector(14 downto 0);
 			done            : out std_logic
 		);
 	end component;
@@ -158,23 +159,23 @@ package aux_package is
 			StateLength : integer := 5
 		);
 		port(
-			clk_i              : in std_logic;
-			rst_i              : in std_logic;
-			ena_i              : in std_logic;
-			done_o             : OUT std_logic;
+			clk              : in std_logic;
+			rst              : in std_logic;
+			ena              : in std_logic;
+			done             : out std_logic;
 
 
 			
 			-- TB inputs
 			DTCM_tb_out        : out std_logic_vector(Dwidth-1 downto 0);
-			tb_active_i        : in  std_logic;
-			DTCM_tb_addr_in_i  : in  std_logic_vector(Awidth-1 downto 0);
-			DTCM_tb_wr_i       : in  std_logic;
-			DTCM_tb_addr_out_i : in  std_logic_vector(Awidth-1 downto 0);
-			DTCM_tb_in_i       : in  std_logic_vector(Dwidth-1 downto 0);
-			ITCM_tb_in_i       : in  std_logic_vector(Dwidth-1 downto 0);
-			ITCM_tb_addr_in_i  : in  std_logic_vector(Awidth-1 downto 0);
-			ITCM_tb_wr_i       : in  std_logic
+			tb_active        : in  std_logic;
+			DTCM_tb_addr_in  : in  std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_wr       : in  std_logic;
+			DTCM_tb_addr_out : in  std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_in       : in  std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_in       : in  std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_addr_in  : in  std_logic_vector(Awidth-1 downto 0);
+			ITCM_tb_wr       : in  std_logic
 		);
 	end component;
 
@@ -243,14 +244,14 @@ package aux_package is
 	component ALU_main is
 		generic (Dwidth : integer := 16);
 		port (
-			reg_a_q_i   : in  std_logic_vector(Dwidth-1 downto 0);
-			reg_b_r_i   : in  std_logic_vector(Dwidth-1 downto 0);
+			reg_a_q   : in  std_logic_vector(Dwidth-1 downto 0);
+			reg_b_r   : in  std_logic_vector(Dwidth-1 downto 0);
 			i_ctrl	    : in  std_logic_vector(2 downto 0);
-			Ain_i	 	: in  std_logic;
-			result_o    : out std_logic_vector(Dwidth-1 downto 0);
-			cflag_o     : out std_logic;
-			nflag_o     : out std_logic;
-			zflag_o     : out std_logic
+			Ain	 	: in  std_logic;
+			result    : out std_logic_vector(Dwidth-1 downto 0);
+			cflag     : out std_logic;
+			nflag     : out std_logic;
+			zflag     : out std_logic
 		);
 	end component;
 
@@ -260,11 +261,11 @@ package aux_package is
 	component PCLogic is
 		generic(Awidth : integer := 6);
 		port(
-			clk_i         : in  std_logic;
+			clk         : in  std_logic;
 			i_PCin        : in  std_logic;
 			i_PCsel       : in  std_logic_vector(1 downto 0);
-			IR_imm_i      : in  std_logic_vector(7 downto 0);
-			currentPC_o   : out std_logic_vector(Awidth-1 downto 0)
+			IR_imm      : in  std_logic_vector(7 downto 0);
+			currentPC   : out std_logic_vector(Awidth-1 downto 0)
 		);
 	end component;
 
@@ -301,43 +302,43 @@ package aux_package is
 			dept   : integer := 64
 		);
 		port(
-			clk_i               : in std_logic;
-			ena_i               : in std_logic;
-			rst_i				: in std_logic;
+			clk               : in std_logic;
+			ena               : in std_logic;
+			rst				: in std_logic;
 			
-			alu_c_o             : out std_logic;
-			alu_z_o             : out std_logic;
-			alu_n_o             : out std_logic;
-			o_opcode            : out std_logic_vector(3 downto 0);
+			alu_c             : out std_logic;
+			alu_z             : out std_logic;
+			alu_n             : out std_logic;
+			opcode            : out std_logic_vector(3 downto 0);
 
 			-- control signals
-			DTCM_wr_i           : in std_logic;
-			DTCM_addr_sel_i     : in std_logic;		
-			DTCM_addr_out_i     : in std_logic;	
-			DTCM_addr_in_i      : in std_logic;		
-			DTCM_out_i          : in std_logic;
+			DTCM_wr           : in std_logic;
+			DTCM_addr_sel     : in std_logic;		
+			DTCM_addr_out     : in std_logic;	
+			DTCM_addr_in      : in std_logic;		
+			DTCM_out          : in std_logic;
 			ALU_op             : in std_logic_vector(2 downto 0); 
-			Ain_i               : in std_logic;
-			RF_WregEn_i         : in std_logic;
-			RF_out_i            : in std_logic;
-			RF_addr_rd_i        : in std_logic_vector(1 downto 0);
-			RF_addr_wr_i        : in std_logic_vector(1 downto 0);		
-			IRin_i              : in std_logic;
+			Ain               : in std_logic;
+			RF_WregEn         : in std_logic;
+			RF_out            : in std_logic;
+			RF_addr_rd        : in std_logic_vector(1 downto 0);
+			RF_addr_wr        : in std_logic_vector(1 downto 0);		
+			IRin              : in std_logic;
 			PCin              : in std_logic;
 			PCsel             : in std_logic_vector(1 downto 0);
-			Imm1_in_i           : in std_logic;
-			Imm2_in_i           : in std_logic;
+			Imm1_in           : in std_logic;
+			Imm2_in           : in std_logic;	
 
 			-- TB inputs/outputs
 			DTCM_tb_out         : out std_logic_vector(Dwidth-1 downto 0);
-			tb_active_i         : in std_logic;
-			DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
-			DTCM_tb_addr_out_i  : in std_logic_vector(Awidth-1 downto 0);
-			DTCM_tb_wr_i        : in std_logic;
-			DTCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
-			ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
-			ITCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
-			ITCM_tb_wr_i        : in std_logic
+			tb_active         : in std_logic;
+			DTCM_tb_addr_in   : in std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_addr_out  : in std_logic_vector(Awidth-1 downto 0);
+			DTCM_tb_wr        : in std_logic;
+			DTCM_tb_in        : in std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_in        : in std_logic_vector(Dwidth-1 downto 0);
+			ITCM_tb_addr_in   : in std_logic_vector(Awidth-1 downto 0);
+			ITCM_tb_wr        : in std_logic
 						
 		);
 	end component;

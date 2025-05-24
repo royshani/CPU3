@@ -17,9 +17,9 @@ end tb_top;
 --------------------------------------------------------------
 architecture tb_top_arch of tb_top is
 	-- used for file operation --
-    constant input_ProgData_loc : string := "C:/Users/yanai/Local/Documents/Yanai/University/LABS/CPU Architercture/Lab3/datapath_code/ITCMinit.txt";
-    constant input_DataMem_loc  : string := "C:/Users/yanai/Local/Documents/Yanai/University/LABS/CPU Architercture/Lab3/datapath_code/DTCMinit.txt";
-    constant output_file_loc    : string := "C:/Users/yanai/Local/Documents/Yanai/University/LABS/CPU Architercture/Lab3/datapath_code/DTCMcontent.txt";
+    constant input_ProgData_loc : string := "C:\Users\yanai\Local\Documents\Yanai\University\LABS\CPU Architercture\Lab3\datapath_code\ITCMinit.txt";
+    constant input_DataMem_loc  : string := "C:\Users\yanai\Local\Documents\Yanai\University\LABS\CPU Architercture\Lab3\datapath_code\DTCMinit.txt";
+    constant output_file_loc    : string := "C:\Users\yanai\Local\Documents\Yanai\University\LABS\CPU Architercture\Lab3\datapath_code\DTCMcontent.txt";
 	
 	signal so_done : std_logic;
 	signal gen : boolean := false; -- file reading trigger
@@ -50,24 +50,24 @@ architecture tb_top_arch of tb_top is
 	--------------------------
 begin
 	mapTop: top port map(
-									clk_i 				=> clk,
-									rst_i 				=> rst,
-									ena_i 				=> ena,
-									done_o 				=> so_done,
-									ITCM_tb_in_i 		=> ITCM_tb_in,
-									ITCM_tb_addr_in_i 	=> ITCM_tb_addr_in,
-									ITCM_tb_wr_i 		=> ITCM_tb_wr,
+									clk 				=> clk,
+									rst 				=> rst,
+									ena 				=> ena,
+									done 				=> so_done,
+									ITCM_tb_in 		=> ITCM_tb_in,
+									ITCM_tb_addr_in 	=> ITCM_tb_addr_in,
+									ITCM_tb_wr 		=> ITCM_tb_wr,
 									
 									-- TB
-									tb_active_i 		=> TBactive,
+									tb_active 		=> TBactive,
 									DTCM_tb_out 		=> DTCM_tb_out,
 									
 									-- mux
 									
-									DTCM_tb_addr_in_i  => DTCM_tb_addr_in,
-									DTCM_tb_in_i	   => DTCM_tb_in,
-									DTCM_tb_wr_i	   => DTCM_tb_wr,
-									DTCM_tb_addr_out_i   => DTCM_tb_addr_out
+									DTCM_tb_addr_in  => DTCM_tb_addr_in,
+									DTCM_tb_in	   => DTCM_tb_in,
+									DTCM_tb_wr	   => DTCM_tb_wr,
+									DTCM_tb_addr_out   => DTCM_tb_addr_out
 									
 
 
@@ -197,7 +197,7 @@ begin
     -- Stop simulation after 4010 ns
     stop_simulation : process
     begin
-        wait for 50000 ns;
+        wait for 5000000 ns;
         report "Simulation ended at 4010 ns" severity note;
         assert false report "Simulation ended" severity failure;
         wait;

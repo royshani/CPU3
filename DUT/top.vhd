@@ -15,128 +15,128 @@ generic(
     StateLength : integer := 5   -- Number of bits to represent FSM states
 );
 port(
-    clk_i              : in std_logic;  -- Clock signal fed from TB
-    rst_i              : in std_logic;  -- Reset signal fed from TB
-    ena_i              : in std_logic;  -- Enable signal for control unit fed from TB
-    done_o             : out std_logic; -- Done flag to TB
-	
+    clk              : in std_logic;  -- Clock signal fed from TB
+    rst              : in std_logic;  -- Reset signal fed from TB
+    ena              : in std_logic;  -- Enable signal for control unit fed from TB
+    done             : out std_logic; -- Done flag to TB
+    
 
-		-- TB inputs
-	DTCM_tb_out    	    : out std_logic_vector(Dwidth-1 downto 0);
-	tb_active_i         : in std_logic:= '0';
-	DTCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
-	DTCM_tb_wr_i        : in std_logic;
-	DTCM_tb_addr_out_i  : in std_logic_vector(Awidth-1 downto 0);
-	DTCM_tb_in_i      	: in std_logic_vector(Dwidth-1 downto 0);
-	ITCM_tb_in_i        : in std_logic_vector(Dwidth-1 downto 0);
-	ITCM_tb_addr_in_i   : in std_logic_vector(Awidth-1 downto 0);
-	ITCM_tb_wr_i        : in std_logic
+        -- TB inputs
+    DTCM_tb_out    	    : out std_logic_vector(Dwidth-1 downto 0);
+    tb_active         : in std_logic:= '0';
+    DTCM_tb_addr_in   : in std_logic_vector(Awidth-1 downto 0);
+    DTCM_tb_wr        : in std_logic;
+    DTCM_tb_addr_out  : in std_logic_vector(Awidth-1 downto 0);
+    DTCM_tb_in      	: in std_logic_vector(Dwidth-1 downto 0);
+    ITCM_tb_in        : in std_logic_vector(Dwidth-1 downto 0);
+    ITCM_tb_addr_in   : in std_logic_vector(Awidth-1 downto 0);
+    ITCM_tb_wr        : in std_logic
 );
 END top;
 
 ARCHITECTURE topArch OF top IS 
 
     -- Signals from Datapath to Control (flags and opcode)
-    signal alu_c_o, alu_z_o, alu_n_o : std_logic;                    -- ALU flags: carry, zero, negative
-    signal opcode                  : std_logic_vector(3 downto 0); -- Opcode extracted from instruction
+    signal alu_c, alu_z, alu_n : std_logic;                    -- ALU flags: carry, zero, negative
+    signal opcode              : std_logic_vector(3 downto 0); -- Opcode extracted from instruction
 
     -- Control signals sent to Datapath
 
-	 signal DTCM_addr_sel_i  : std_logic;
-	 signal DTCM_addr_out_i  : std_logic;
-	 signal DTCM_addr_in_i   : std_logic;
-	 signal DTCM_out_i       : std_logic;
-	 signal DTCM_wr_i 		  : std_logic;
-	 signal ALU_op          : std_logic_vector(2 downto 0);
-	 signal Ain_i            : std_logic;
-	 signal RF_WregEn_i      : std_logic;
-	 signal RF_out_i         : std_logic;
-	 signal RF_addr_rd_i     : std_logic_vector(1 downto 0);
-	 signal RF_addr_wr_i     : std_logic_vector(1 downto 0);
-	 signal IRin_i           : std_logic;
-	 signal PCin           : std_logic;
-	 signal PCsel          : std_logic_vector(1 downto 0);
-	 signal Imm1_in_i        : std_logic;
-	 signal Imm2_in_i        : std_logic;
-	 signal status_bits_r    : std_logic_vector(14 downto 0);
-	 signal done_r			  : std_logic;
+     signal DTCM_addr_sel  : std_logic;
+     signal DTCM_addr_out  : std_logic;
+     signal DTCM_addr_in   : std_logic;
+     signal DTCM_out       : std_logic;
+     signal DTCM_wr 		  : std_logic;
+     signal ALU_op          : std_logic_vector(2 downto 0);
+     signal Ain             : std_logic;
+     signal RF_WregEn       : std_logic;
+     signal RF_out          : std_logic;
+     signal RF_addr_rd      : std_logic_vector(1 downto 0);
+     signal RF_addr_wr      : std_logic_vector(1 downto 0);
+     signal IRin            : std_logic;
+     signal PCin            : std_logic;
+     signal PCsel           : std_logic_vector(1 downto 0);
+     signal Imm1_in         : std_logic;
+     signal Imm2_in         : std_logic;
+     signal status_bits     : std_logic_vector(14 downto 0);
+     signal done_r          : std_logic;
 
 BEGIN
 
     -- Datapath Instantiation
     mapDatapath: Datapath generic map(Dwidth, Awidth, dept) port map(
-        clk_i              => clk_i,
-        ena_i              => ena_i,
-		rst_i              => rst_i,
+        clk              => clk,
+        ena              => ena,
+        rst              => rst,
 
-        alu_c_o            => alu_c_o,
-        alu_z_o            => alu_z_o,
-        alu_n_o            => alu_n_o,
-        o_opcode           => opcode,
-		
+        alu_c            => alu_c,
+        alu_z            => alu_z,
+        alu_n            => alu_n,
+        opcode         => opcode,
+        
 
-		
-        DTCM_wr_i          => DTCM_wr_i,
-        DTCM_addr_sel_i    => DTCM_addr_sel_i,
-        DTCM_addr_out_i    => DTCM_addr_out_i,
-        DTCM_addr_in_i     => DTCM_addr_in_i,
-        DTCM_out_i         => DTCM_out_i,
-        ALU_op            => ALU_op,
-        Ain_i              => Ain_i,
-        RF_WregEn_i        => RF_WregEn_i,
-        RF_out_i           => RF_out_i,
-        RF_addr_rd_i       => RF_addr_rd_i,
-        RF_addr_wr_i       => RF_addr_wr_i,
-        IRin_i             => IRin_i,
+        
+        DTCM_wr          => DTCM_wr,
+        DTCM_addr_sel    => DTCM_addr_sel,
+        DTCM_addr_out    => DTCM_addr_out,
+        DTCM_addr_in     => DTCM_addr_in,
+        DTCM_out         => DTCM_out,
+        ALU_op           => ALU_op,
+        Ain              => Ain,
+        RF_WregEn        => RF_WregEn,
+        RF_out           => RF_out,
+        RF_addr_rd       => RF_addr_rd,
+        RF_addr_wr       => RF_addr_wr,
+        IRin             => IRin,
         PCin             => PCin,
         PCsel            => PCsel,
-        Imm1_in_i          => Imm1_in_i,
-        Imm2_in_i          => Imm2_in_i,
+        Imm1_in          => Imm1_in,
+        Imm2_in          => Imm2_in,
 
-        DTCM_tb_out        => DTCM_tb_out,
-        tb_active_i        => tb_active_i,
-        DTCM_tb_addr_in_i  => DTCM_tb_addr_in_i,
-		DTCM_tb_addr_out_i => DTCM_tb_addr_out_i,
-        DTCM_tb_wr_i       => DTCM_tb_wr_i,
-        DTCM_tb_in_i       => DTCM_tb_in_i,
-        ITCM_tb_in_i       => ITCM_tb_in_i,
-        ITCM_tb_addr_in_i  => ITCM_tb_addr_in_i,
-        ITCM_tb_wr_i       => ITCM_tb_wr_i
+        DTCM_tb_out      => DTCM_tb_out,
+        tb_active        => tb_active,
+        DTCM_tb_addr_in  => DTCM_tb_addr_in,
+        DTCM_tb_addr_out => DTCM_tb_addr_out,
+        DTCM_tb_wr       => DTCM_tb_wr,
+        DTCM_tb_in       => DTCM_tb_in,
+        ITCM_tb_in       => ITCM_tb_in,
+        ITCM_tb_addr_in  => ITCM_tb_addr_in,
+        ITCM_tb_wr       => ITCM_tb_wr
     );
 
 
     -- Control Unit Instantiation
     mapControl: ControlUnit generic map(StateLength) port map(
-        clk_i              => clk_i,
-        rst_i              => rst_i,
-        ena_i              => ena_i,
+        clk              => clk,
+        rst              => rst,
+        ena              => ena,
 
-        ALU_c_i            => alu_c_o,
-        ALU_z_i            => alu_z_o,
-        ALU_n_i            => alu_n_o,
-        i_opcode           => opcode,
-		done			   => done_r,
-        DTCM_wr_o          => DTCM_wr_i,
-        DTCM_addr_sel_o    => DTCM_addr_sel_i,
-        DTCM_addr_out_o    => DTCM_addr_out_i,
-        DTCM_addr_in_o     => DTCM_addr_in_i,
-        DTCM_out_o         => DTCM_out_i,
-        ALU_op            => ALU_op,
-        Ain_o              => Ain_i,
-        RF_WregEn_o        => RF_WregEn_i,
-        RF_out_o           => RF_out_i,
-        RF_addr_rd_o       => RF_addr_rd_i,
-        RF_addr_wr_o       => RF_addr_wr_i,
-        IRin_o             => IRin_i,
+        ALU_c            => alu_c,
+        ALU_z            => alu_z,
+        ALU_n            => alu_n,
+        opcode         => opcode,
+        done             => done_r,
+        DTCM_wr          => DTCM_wr,
+        DTCM_addr_sel    => DTCM_addr_sel,
+        DTCM_addr_out    => DTCM_addr_out,
+        DTCM_addr_in     => DTCM_addr_in,
+        DTCM_out         => DTCM_out,
+        ALU_op           => ALU_op,
+        Ain              => Ain,
+        RF_WregEn        => RF_WregEn,
+        RF_out           => RF_out,
+        RF_addr_rd       => RF_addr_rd,
+        RF_addr_wr       => RF_addr_wr,
+        IRin             => IRin,
         PCin             => PCin,
         PCsel            => PCsel,
-        Imm1_in_o          => Imm1_in_i,
-        Imm2_in_o          => Imm2_in_i,
+        Imm1_in          => Imm1_in,
+        Imm2_in          => Imm2_in,
 
 
-        status_bits_o      => status_bits_r(14 downto 0)
+        status_bits      => status_bits
         
     );
 
-	done_o <= done_r;
+    done <= done_r;
 END topArch;

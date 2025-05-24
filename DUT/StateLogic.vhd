@@ -11,12 +11,12 @@ use work.aux_package.all;
 entity StateLogic is
     generic(StateLength : integer := 5); -- 2⁵ = 32 states
     port(
-        clk_i         : in std_logic;
-        ena_i         : in std_logic;
-        rst_i         : in std_logic;
-        ALU_cflag_i   : in std_logic;
-        i_opcode      : in std_logic_vector(3 downto 0);
-        current_state_o : out std_logic_vector(StateLength-1 downto 0)
+        clk         : in std_logic;
+        ena         : in std_logic;
+        rst         : in std_logic;
+        ALU_cflag   : in std_logic;
+        opcode      : in std_logic_vector(3 downto 0);
+        current_state : out std_logic_vector(StateLength-1 downto 0)
     );
 end StateLogic;
 
@@ -46,6 +46,8 @@ architecture StateArch of StateLogic is
     constant ST_LD1          : std_logic_vector(StateLength-1 downto 0) := "10001";
     constant ST_LD2          : std_logic_vector(StateLength-1 downto 0) := "10010";
     constant ST_DEC          : std_logic_vector(StateLength-1 downto 0) := "10011";
+	constant ST_LD_wr      	 : std_logic_vector(StateLength-1 downto 0) := "10100";
+	constant ST_BUS_WR       : std_logic_vector(StateLength-1 downto 0) := "10101";
 
     -- Opcode decoding constants
     constant OP_ADD  : integer := 0;
@@ -64,35 +66,36 @@ architecture StateArch of StateLogic is
 begin
 
     -- Connect internal state to output
-    current_state_o <= current_state_q;
+    current_state <= current_state_q;
 
     ----------------------------------------------------------
     -- Combinational next-state logic
     ----------------------------------------------------------
-    NextStateMachine: process(ena_i, rst_i, current_state_q)
+    NextStateMachine: process(ena, rst, current_state_q,next_state_r)
         variable current_state_v : integer range 0 to 31;
         variable opcode_v        : integer range 0 to 15;
     begin
         current_state_v := conv_integer(current_state_q);
-        opcode_v := conv_integer(i_opcode);
+        opcode_v := conv_integer(opcode);
 
-        if rst_i = '1' then
+        if rst = '1' then
             next_state_r <= ST_IDLE;
 
-        elsif ena_i = '1' then
+        elsif ena = '1' then
             case current_state_v is
                 when 1 =>  -- FETCH
                     next_state_r <= ST_DEC;
 
                 when 2 =>  -- RT
-                    case opcode_v is
+					case opcode_v is
                         when OP_ADD  => next_state_r <= ST_ADD;
                         when OP_SUB  => next_state_r <= ST_SUB;
                         when OP_AND  => next_state_r <= ST_AND;
                         when OP_OR   => next_state_r <= ST_OR;
                         when OP_XOR  => next_state_r <= ST_XOR;
                         when others  => next_state_r <= ST_FETCH;
-                    end case;
+					end case;
+
 
                 when 6 =>  -- LD_OR_ST
                     next_state_r <= ST_LD_ST_LOGIC;
@@ -101,6 +104,7 @@ begin
                     next_state_r <= ST_DONE;
 
                 when 8 | 9 | 10 | 11 | 12 =>  -- ALU operations
+                    
                     next_state_r <= ST_RT_FIN;
 
                 when 14 =>  -- LD/ST logic
@@ -112,9 +116,15 @@ begin
 
                 when 15 =>  -- ST1
                     next_state_r <= ST_ST2;
+					
+				when 16 => -- ST2
+					next_state_r <= ST_BUS_WR;
 
                 when 17 =>  -- LD1
                     next_state_r <= ST_LD2;
+					
+				when 18 =>  -- LD2
+                    next_state_r <= ST_LD_wr;	
 
                 when 19 =>  -- DEC
                     case opcode_v is
@@ -126,6 +136,7 @@ begin
                         when OP_ADD | OP_SUB | OP_AND | OP_OR | OP_XOR => next_state_r <= ST_RT;
                         when others            => next_state_r <= ST_FETCH;
                     end case;
+				
 
                 when others =>
                     next_state_r <= ST_FETCH;
@@ -139,11 +150,11 @@ begin
     ----------------------------------------------------------
     -- Synchronous state register
     ----------------------------------------------------------
-    next_st_register: process(clk_i)
+    next_st_register: process(clk,next_state_r)
     begin
-        if rst_i = '1' then
+        if rst = '1' then
             current_state_q <= ST_IDLE;
-        elsif ena_i = '1' and rising_edge(clk_i) then
+        elsif ena = '1' and rising_edge(clk) then
             current_state_q <= next_state_r;
         end if;
     end process;
